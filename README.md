@@ -1,5 +1,7 @@
 # Wide Area Networks Project
 
+Note that the network is currently functioning under a stop and wait protocol, where a router sends a single packet and waits for an ack. This is just because it was easiest to implement.
+
 Some notes about the current state of the code:
 
 1. The network relies on a central router that stores the physical topology of the whole network. this is called conn_router. New routers know the port/ip of conn_router and automatically connect to it when they become alive. 
@@ -35,7 +37,6 @@ Currently, the program runs a simulation with 1 client and 2 routers, where the 
 Here, we hard code the port for the first hop. The client sends the packet to port 22222, which forwards it to 33333.
 
 ##TODOS
-```
 0. control interface for application/client layer 
 ```
 ```
@@ -51,7 +52,13 @@ Here, we hard code the port for the first hop. The client sends the packet to po
 4. LSA flooding, and using other LSA messages to update own LSDB 
 ```
 ```
-5. error generation/handling (packet drops/corruption)
+5. Max packet size for links
+```
+```
+6. Breakdown of files into packets of max size, reassembly, and possible fragmentation
+```
+```
+7. error generation/handling (packet drops/corruption)
 ```
 
     
