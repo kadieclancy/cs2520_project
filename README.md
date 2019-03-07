@@ -1,8 +1,17 @@
-# cs2520_project
-Some notes about the current state of the code:
-  1. The network relies on a central router that stores the physical topology of the whole network. this is called conn_router. New routers know the port/ip of conn_router and automatically connect to it when they become alive. 
-  2. Each router/client must be run in its own terminal window, including conn_router. This is temporary, until I figure out how to actually use threads properly. 
-  3. Since the whole thing is run locally, the IPs for all the routers is just loopback 127.0.0.1. The port numbers are used to differentiate different routers and different sockets within routers. 
+# Wide Area Networks Project
+
+## Some notes about the current state of the code:
+```
+ 1. The network relies on a central router that stores the physical topology of the whole network. this is called conn_router. New routers know the port/ip of conn_router and automatically connect to it when they become alive. 
+```
+
+```
+ 2. Each router/client must be run in its own terminal window, including conn_router. This is temporary, until I figure out how to actually use threads properly. 
+```
+
+```
+3. Since the whole thing is run locally, the IPs for all the routers is just loopback 127.0.0.1. The port numbers are used to differentiate different routers and different sockets within routers. 
+```
 
 Currently, the program runs a simulation with 1 client and 2 routers, where the client sends a packet to the first router, who sends it to the second, at which point an ack is propogated packwards. This topology and the ports of the routers are hard coded in. To run this simulation, run the commands (each in a seperate terminal):
 	1. python3 conn_router.py
