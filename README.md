@@ -27,7 +27,10 @@ Currently, the program runs a simulation with 1 client and 2 routers, where the 
 5. 'Welcome. Type 1 for control information, 2 to send a file.' 
 ```
 ```
-6. 2 7. 'Enter first hop port (22222):' 22222 
+6. 2 
+```
+```
+7. 'Enter first hop port (22222):' 22222 
 ```
 Here, we hard code the port for the first hop. The client sends the packet to port 22222, which forwards it to 33333.
 
