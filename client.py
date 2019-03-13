@@ -48,12 +48,36 @@ def send_file(packet):
 	#print(data.decode())
 #	threading.Timer(15, periodic_ping_server).start()
 
-print('Welcome. Type 1 for control information, 2 to send a file.')
+print('Welcome to the Client Interface')
+print('Please refer to the numbered commands below')
+print()
+print('Enter 1 for control information')
+print('Enter 2 to send a file')
+print('Enter 3 to view routing table information')
+print('Enter 4 to display shortest paths')
+print('Enter 5 to exit the client')
+print('Enter 6 for help')
 inp = input('')
 if(int(inp) == 1):
 	control()
 elif(int(inp) == 2):
 	p = packet(33333, 00000, 0, 'This is a packet')
 	send_file(p)
+elif(int(inp) == 3):
+	# TODO
+elif (int(inp) == 4):
+	# TODO
+elif(int(inp) == 5):
+	# TODO implement exit
+elif (int(inp) == 6):
+	print('Welcome to the Client Interface')
+	print('Please refer to the numbered commands below')
+	print()
+	print('Enter 1 for control information')
+	print('Enter 2 to send a file')
+	print('Enter 3 to view routing table information')
+	print('Enter 4 to display shortest paths')
+	print('Enter 5 to exit the client')
+	print('Enter 6 for help')
 else:
-	print('invalid')
+	print('Invalid Command. Enter 6 for help.')
