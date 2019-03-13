@@ -1,5 +1,6 @@
 # Adjacency matrix based implementation of Dijkstra's algorithm
 import math
+import numpy as np
 
 # takes the adj matrix of the network and source node as arguments
 # returns
@@ -52,6 +53,11 @@ def minDistance(dist, sptSet, verts):
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Test
+
+#connec = np.loadtxt("config_file.txt", dtype='i', delimiter=',')
+#print(connec)
+#print("Network Configuration")
+
 #connec = [[0, 4, 0, 0, 0, 0, 0, 8, 0],
 #           [4, 0, 8, 0, 0, 0, 0, 11, 0],
 #           [0, 8, 0, 7, 0, 4, 0, 0, 2],

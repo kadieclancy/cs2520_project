@@ -1,6 +1,7 @@
 #this router is responsible for storing all the physical topology of the network 
 import socket
 import pickle
+import numpy as np
 
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT = 12345        # Port to listen on (non-privileged ports are > 1023)
@@ -13,8 +14,14 @@ PORT = 12345        # Port to listen on (non-privileged ports are > 1023)
 #			[0, 0, 0, 0],
 #			[0, 0, 0, 0]]
 #test_network0
-connec = 	[[1, 1],	
-			[1, 1]]
+
+# Load the config file that gives info about network
+connec = np.loadtxt("config_file.txt", dtype='i', delimiter=',')
+print(connec)
+
+#connec = 	[[1, 1],
+#			[1, 1]]
+
 #ports[i] = port number for router i
 ports = [22222, 33333]
 #test_network1
