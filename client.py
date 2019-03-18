@@ -19,8 +19,8 @@ def send_file(packet):
 	    #p = packet(HOST+str(PORT), sock_info[1], 0, 'file contents')
 	    encoded_packet = pickle.dumps(packet)
 	    s.sendall(encoded_packet)
-	    data = s.recv(1024)
-	    if data.decode() == 'ack':
+	    data = pickle.loads(s.recv(4096))
+	    if data.contents == 'ack':
 	    	print('Ack received. File transmitted succesfully')
 
 #ignore this function for now. something like this will need to be implemented on the routers
@@ -39,8 +39,8 @@ inp = input('')
 if(int(inp) == 1):
 	control()
 elif(int(inp) == 2):
-	dest = input('Enter dest port (33333): ')
-	p = packet(dest, my_router_port, 0, 'This is a packet')
+	#dest = input('Enter dest port (33333): ')
+	p = packet(33333, my_router_port, 0, 'This is a packet')
 	send_file(p)
 #elif(int(inp) == 3):
 	# TODO
