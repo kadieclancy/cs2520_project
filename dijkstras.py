@@ -13,6 +13,9 @@ def dijkstras(mat, src):
     dist = [math.inf] * verts
     dist[src] = 0
     sptSet = [False] * verts
+    
+    # init parent array to store shortest path tree
+    parent = [-1] * verts
 
     for cout in range(verts):
 
@@ -29,12 +32,11 @@ def dijkstras(mat, src):
         for v in range(verts):
             if mat[u][v] > 0 and sptSet[v] == False and dist[v] > dist[u] + mat[u][v]:
                 dist[v] = dist[u] + mat[u][v]
+                parent[v] = u
 
-    for node in range(verts):
-        print ("Vertex Distance from Source")
-        print (node, "\t", dist[node])
+    printSolution(dist,parent)
 
-    return
+    return(dist,parent)
 
 # find the vert with minimum distance value, from the set of vertices
 # not yet included in shortest path tree
@@ -51,6 +53,22 @@ def minDistance(dist, sptSet, verts):
 
     return min_index
 
+# Function to print shortest path from source to j using parent array 
+def printPath( parent, j):        
+	#Base Case : If j is source 
+	if parent[j] == -1 :  
+		print(j)
+		return
+	printPath(parent , parent[j]) 
+	print(j)
+
+# A function to print the constructed distance array 
+def printSolution(dist, parent): 
+    src = 0
+    print("Vertex \t\tDistance from Source\tPath") 
+    for i in range(1, len(dist)): 
+        print("\n%d --> %d \t\t%d \t\t\t\t\t" % (src, i, dist[i])), 
+        printPath(parent,i) 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Test
 
@@ -58,15 +76,15 @@ def minDistance(dist, sptSet, verts):
 #print(connec)
 #print("Network Configuration")
 
-#connec = [[0, 4, 0, 0, 0, 0, 0, 8, 0],
-#           [4, 0, 8, 0, 0, 0, 0, 11, 0],
-#           [0, 8, 0, 7, 0, 4, 0, 0, 2],
-#           [0, 0, 7, 0, 9, 14, 0, 0, 0],
-#           [0, 0, 0, 9, 0, 10, 0, 0, 0],
-#           [0, 0, 4, 14, 10, 0, 2, 0, 0],
-#           [0, 0, 0, 0, 0, 2, 0, 1, 6],
-#           [8, 11, 0, 0, 0, 0, 1, 0, 7],
-#           [0, 0, 2, 0, 0, 0, 6, 7, 0]
-#          ];
+connec = [[0, 4, 0, 0, 0, 0, 0, 8, 0],
+           [4, 0, 8, 0, 0, 0, 0, 11, 0],
+           [0, 8, 0, 7, 0, 4, 0, 0, 2],
+           [0, 0, 7, 0, 9, 14, 0, 0, 0],
+           [0, 0, 0, 9, 0, 10, 0, 0, 0],
+           [0, 0, 4, 14, 10, 0, 2, 0, 0],
+           [0, 0, 0, 0, 0, 2, 0, 1, 6],
+           [8, 11, 0, 0, 0, 0, 1, 0, 7],
+           [0, 0, 2, 0, 0, 0, 6, 7, 0]
+          ];
 
-#dijkstras(connec, 0)
+dijkstras(connec, 0)
