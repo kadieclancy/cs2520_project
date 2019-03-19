@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 # takes the adj matrix of the network and source node as arguments
-# returns
+# returns a dictionary of shortest paths from src to each node
 def dijkstras(mat, src):
     # number of vertices in the graph
     verts = len(mat)
@@ -34,9 +34,9 @@ def dijkstras(mat, src):
                 dist[v] = dist[u] + mat[u][v]
                 parent[v] = u
 
-    printSolution(dist,parent)
-
-    return(dist,parent)
+    #printSolution(dist,parent)
+    SD = solutionDict(dist, parent)
+    return(SD)
 
 # find the vert with minimum distance value, from the set of vertices
 # not yet included in shortest path tree
@@ -54,7 +54,7 @@ def minDistance(dist, sptSet, verts):
     return min_index
 
 # Function to print shortest path from source to j using parent array 
-def printPath( parent, j):        
+def printPath(parent, j):
 	#Base Case : If j is source 
 	if parent[j] == -1 :  
 		print(j)
@@ -62,14 +62,46 @@ def printPath( parent, j):
 	printPath(parent , parent[j]) 
 	print(j)
 
-# A function to print the constructed distance array 
+def pathMat(parent,j,path):
+    # Base Case : If j is source
+    if parent[j] == -1:
+        path.append(j)
+        return
+    pathMat(parent, parent[j], path)
+    path.append(j)
+    return path
+
+
+# function to get unique values
+def unique(list1):
+    # intilize a null list
+    unique_list = []
+
+    # traverse for all elements
+    for x in list1:
+        # check if exists in unique_list or not
+        if x not in unique_list:
+            unique_list.append(x)
+            # print list
+    return unique_list
+
+# A function to print the constructed distance array
 def printSolution(dist, parent): 
     src = 0
     print("Vertex \t\tDistance from Source\tPath") 
     for i in range(1, len(dist)): 
         print("\n%d --> %d \t\t%d \t\t\t\t\t" % (src, i, dist[i])), 
-        printPath(parent,i) 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        printPath(parent,i)
+
+def solutionDict(dist, parent):
+    src = 0
+    solDict = {}
+    for i in range(1, len(dist)):
+        path = []
+        pth = pathMat(parent, i, path)
+        solDict[i] = pth #unique(pth)
+    return solDict
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Test
 
 #connec = np.loadtxt("config_file.txt", dtype='i', delimiter=',')
@@ -87,4 +119,6 @@ def printSolution(dist, parent):
 #           [0, 0, 2, 0, 0, 0, 6, 7, 0]
 #          ];
 
-#dijkstras(connec, 0)
+#[SD, dist, parent] = dijkstras(connec, 0)
+#print(SD)
+#print(parent)
