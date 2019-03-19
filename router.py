@@ -174,10 +174,16 @@ class router:
 		return True
 	
 	def compute_RT(self, LSBD):
-		# src is 0 since router always refers to itself as 0
-		[dist, parent] = dijkstras(LSDB, 0)
-		#TODO: add/update paths to RT dict 
-		return
+		# src is 0 since router always refers to itself as 0, returns dictionary
+		SB = dijkstras(LSDB, 0)
+		for key, elem in SB:
+			# if not in RT, add it
+			if key not in self.RT:
+				self.RT[key] = elem
+			# if in RT, update path
+			else:
+				self.RT[key] = elem
+		return RT
 	
     #most of the routers lifetime will be spent in this function, waiting for a connection
 	def listen(self, HOST, PORT):
