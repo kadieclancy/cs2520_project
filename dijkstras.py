@@ -99,7 +99,7 @@ def solutionDict(dist, parent):
     for i in range(1, len(dist)):
         path = []
         pth = pathMat(parent, i, path)
-        solDict[i] = pth #unique(pth)
+        solDict[i] = [dist[i], pth] #unique(pth)
     return solDict
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Test
