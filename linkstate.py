@@ -18,10 +18,11 @@ class LinkState:
 	def updateNeighborDelay(self, neigh_index, delay):
 		self.LSDB[neigh_index] = delay + 1 # for now bc no delay
 	
-	def mapping2Matrix(self):
+	def mapping2Matrix(self, map):
+		print(map)
 		mappingMatrix = np.array([])
-		for key, elem in self.mapping:
-			newrow = np.array([key, elem])
+		for key, elem in map:
+			newrow = np.array([elem, key])
 			mappingMatrix = np.vstack([mappingMatrix, new_row])
 		return mappingMatrix
 		

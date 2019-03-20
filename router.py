@@ -6,6 +6,7 @@ from Packet import packet
 from threading import Timer,Thread,Event
 from dijkstras import dijkstras
 from linkstate import *
+from routingTable import *
 
 #todo:
 #   1. implement RT as a dict, index by destination IP, data is the IP of the next hop to
@@ -31,8 +32,8 @@ class router:
 		# Keeps track of the mapping from internal naming of nodes to IP/ports
 		self.countt = 0
 		self.mapping = {self.countt : [sys.argv[2], int(sys.argv[3])]}
-		# Routing Table structure indexed by destination and contains shortest path info
-		self.RT	= {0 : [0]}
+		# Routing Table structure
+		self.RT	= RoutingTable()
 		# Local link state object to keep track of neighbors and weights to neighbors
 		self.localLinkState = LinkState(self.ip, self.port)
 		self.localLinkState.printLinkState()
@@ -138,6 +139,8 @@ class router:
 				# Add neighbor to LSDB (init delay 1 for hop)
 				self.localLinkState.addNeighbor('127.0.0.1', other_router_port)
 				self.localLinkState.printLinkState()
+				# Init Routing Table
+				self.RT.createInitRT(self.localLinkState)
 			else:
 				print('Connection refused.')
 		except:
@@ -162,7 +165,7 @@ class router:
 						data = s.recv(1024)
 					c = pickle.loads(data) 
 					delay_time = int(c) - int(cur_time)
-					# TODO update weight in Link State
+					# Update weight in Link State
 					print('Updating weight in local link state')
 					num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
 					self.localLinkState.updateNeighborDelay(num, delay_time)
