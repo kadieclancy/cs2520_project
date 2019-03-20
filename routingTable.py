@@ -2,6 +2,7 @@
 # contains the Link State info for a local link state
 import numpy as np
 from linkstate import *
+from dijkstras import *
 
 class RoutingTable:
 	def __init__(self):
@@ -41,11 +42,23 @@ class RoutingTable:
 				self.RT[r, 0] = 1
 		print('ROUTING TABLE:')
 		print(self.RT)
+		self.computeRT(self.RT)
 
+	def computeRT(self, adjMat):
+		RT_Dict = dijkstras(adjMat, 0)
+		print('ROUTING TABLE DICT:') 
+		print(RT_Dict)
 
 	def addLSA(self, linkstate):
 		map = linkstate.mapping
 		lsdb = linkstate.LSDB
+		
+	def updateRT(self, mappingNum, delay):
+		self.RT[0, int(mappingNum)] = int(delay) + 1
+		self.RT[int(mappingNum), 0] = int(delay) + 1
+		print('NEW ROUTING TABLE:')
+		print(self.RT)
+		self.computeRT(self.RT)
 		
 	
 #ls = LinkState('127.0.0.1', str(33333))
@@ -61,4 +74,4 @@ class RoutingTable:
 #print('Starting RT STuff')
 #route = RoutingTable()
 #route.createInitRT(ls)
-#print(route.RT)
+#route.updateRT(2, 10)

@@ -169,6 +169,7 @@ class router:
 					print('Updating weight in local link state')
 					num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
 					self.localLinkState.updateNeighborDelay(num, delay_time)
+					self.RT.updateRT(num, delay_time)
                     #print('Delay to neighbor ' + str(neighbor[1]) + ' : ' + str(delay_time))
 				except:
 					print('Unable to connect to neighbor: ' + str(neighbor))
