@@ -18,16 +18,6 @@ from linkstate import *
 
 
 class router:
-	# Link State DB is a matrix, init populated with known neighbors
-	# once neighbors send their connections, matrix is updated
-	LSDB = []
-
-	# Keeps track of the mapping from internal naming of nodes to IP/ports
-	count = 0
-	mapping	= {count : [sys.argv[2], int(sys.argv[3])]}
-	
-	# Routing Table structure indexed by destination and contains shortest path info
-	RT	= {0 : [0]}
 
 	def __init__(self, id, ip, port):
 		print('Initializing router ' + str(id) + '...')
@@ -35,6 +25,17 @@ class router:
 		self.ip = ip 
 		self.port = port
 		self.alive_interval = 5
+		# Link State DB is a matrix, init populated with known neighbors
+		# once neighbors send their connections, matrix is updated
+		self.LSDB = []
+		# Keeps track of the mapping from internal naming of nodes to IP/ports
+		self.countt = 0
+		self.mapping = {self.countt : [sys.argv[2], int(sys.argv[3])]}
+		# Routing Table structure indexed by destination and contains shortest path info
+		self.RT	= {0 : [0]}
+		# Local link state object to keep track of neighbors and weights to neighbors
+		self.localLinkState = LinkState(self.ip, self.port)
+		self.localLinkState.printLinkState()
 		self.running = False
 		conn_and_port_info = self.get_topology()
 		self.topology = conn_and_port_info[0]
@@ -46,7 +47,8 @@ class router:
 				self.neighbors_statuses[str(neighbor[1])] = False
 		self.establish_neighbor_connections()
 		self.listen(str(self.ip), self.port)
-		self.localLinkState = LinkState(self.ip, self.port)
+
+
 
     #subclass to create the timing thread responsible for alive messages to neighbors 
 	class periodic_neighbor_timer():
@@ -88,8 +90,8 @@ class router:
 			if self.topology[self.id][i] == 1  and str(self.ports[i]) != str(self.port):
 				c = ['127.0.0.1', self.ports[i]]
 				neighbor_info.append(c)
-				self.count = self.count + 1
-				self.mapping[self.count] = c
+				#self.countt = self.countt + 1
+				#self.mapping[self.countt] = c
 		return neighbor_info
 
     #call when router first starts up. contacts the central conn_router to get the
@@ -133,8 +135,9 @@ class router:
 			if c.contents == 'Be_Neighbors_Confirm':
 				print('Connection established')
 				self.neighbors_statuses[str(other_router_port)] = True
-				# TODO add neighbor to LSDB
-				#self.localLinkState.addNeighbor('127.0.0.1', other_router_port)
+				# Add neighbor to LSDB (init delay 1 for hop)
+				self.localLinkState.addNeighbor('127.0.0.1', other_router_port)
+				self.localLinkState.printLinkState()
 			else:
 				print('Connection refused.')
 		except:
@@ -159,11 +162,10 @@ class router:
 						data = s.recv(1024)
 					c = pickle.loads(data) 
 					delay_time = int(c) - int(cur_time)
-					# TODO update weight in RT
-					print('trying to update link state')
-					#num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
-					#disp('num')
-					#self.localLinkState.updateNeighborDelay(num, delay_time)
+					# TODO update weight in Link State
+					print('Updating weight in local link state')
+					num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
+					self.localLinkState.updateNeighborDelay(num, delay_time)
                     #print('Delay to neighbor ' + str(neighbor[1]) + ' : ' + str(delay_time))
 				except:
 					print('Unable to connect to neighbor: ' + str(neighbor))
