@@ -230,8 +230,9 @@ class router:
 								conn.sendall(pickle.dumps(ack_pack))
 								break
                             #else, forward the packet to the next hop 
-                            # RT lookup here
-                            #forward_port = self.RT.routingTableLookup[str(decoded_packet.dest_ip), str(decoded_packet.dest_port)]
+                            # RT lookup here 
+                            # just use this IP for now
+							forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))
 							forward_port = self.is_neighbor(decoded_packet.dest_ip)
                             #if the destination cannot be reached, the forward port will be -1
 							if(forward_port != -1):
