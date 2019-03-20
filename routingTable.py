@@ -8,6 +8,7 @@ class RoutingTable:
 	def __init__(self):
 		self.RT = np.array([0])
 		self.myMapping = {}
+		self.RT_Dict = {}
 	
 	def createInitRT(self, localLinkState):
 		self.myMapping = localLinkState.mapping
@@ -45,9 +46,9 @@ class RoutingTable:
 		self.computeRT(self.RT)
 
 	def computeRT(self, adjMat):
-		RT_Dict = dijkstras(adjMat, 0)
+		self.RT_Dict = dijkstras(adjMat, 0)
 		print('ROUTING TABLE DICT:') 
-		print(RT_Dict)
+		print(self.RT_Dict)
 
 	def addLSA(self, linkstate):
 		map = linkstate.mapping
@@ -59,19 +60,35 @@ class RoutingTable:
 		print('NEW ROUTING TABLE:')
 		print(self.RT)
 		self.computeRT(self.RT)
+	
+	def routingTableLookup(self, IP, port):
+		mapNum = self.myMapping[str(IP)+str(port)]
+		vect = self.RT_Dict[mapNum]
+		dist = vect[0]
+		path = vect[1]
+		
+		for key, elem in self.myMapping.items():
+			if path[0] == elem:
+				addr = key
+		
+		forward_IP = addr[:9]
+		forward_port = addr[9:]
+		
+		return forward_IP, forward_port
 		
 	
-#ls = LinkState('127.0.0.1', str(33333))
-#ls.addNeighbor('127.0.0.1', str(22222))
-#ls.addNeighbor('127.0.0.1', str(44444))
-#ls.addNeighbor('127.0.0.1', str(55555))
+ls = LinkState('127.0.0.1', str(33333))
+ls.addNeighbor('127.0.0.1', str(22222))
+ls.addNeighbor('127.0.0.1', str(44444))
+ls.addNeighbor('127.0.0.1', str(55555))
 #ls.printLinkState()
 #num = ls.ip2MapNum('127.0.0.1', 55555)
 #print(num)
 #ls.updateNeighborDelay(num, 3)
 #ls.printLinkState()
 
-#print('Starting RT STuff')
-#route = RoutingTable()
-#route.createInitRT(ls)
-#route.updateRT(2, 10)
+print('Starting RT STuff')
+route = RoutingTable()
+route.createInitRT(ls)
+route.updateRT(2, 10)
+route.routingTableLookup('127.0.0.1', str(22222))

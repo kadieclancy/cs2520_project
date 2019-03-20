@@ -231,7 +231,7 @@ class router:
 								break
                             #else, forward the packet to the next hop 
                             # RT lookup here
-                            #forward_port = self.routing_table[str(decoded_packet.dest_ip)]
+                            #forward_port = self.RT.routingTableLookup[str(decoded_packet.dest_ip), str(decoded_packet.dest_port)]
 							forward_port = self.is_neighbor(decoded_packet.dest_ip)
                             #if the destination cannot be reached, the forward port will be -1
 							if(forward_port != -1):
