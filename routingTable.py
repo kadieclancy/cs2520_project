@@ -76,6 +76,50 @@ class RoutingTable:
 		
 		return forward_IP, forward_port
 		
+	def addOtherRouterLSA(self, lsa):
+		otherMap = lsa.mapping
+		otherLSDB = lsa.LSDB
+		
+		m = False
+		# first check if this lsa is in our mapping
+		for k, e in self.myMapping.items():
+			if k == lsa.IP + str(lsa.port):
+				m = True
+				otherInd = int(e)
+		# if no match add to myMapping
+		if m == False:
+			therInd = int(self.myMapping.shape[0])
+			self.myMapping[lsa.IP + str(lsa.port)] = self.myMapping.shape[0]
+			new_col = np.zeros([(self.myMapping.shape[0]),1], dtype = int) #[:,[0]]
+			new_row = np.zeros([1,(self.myMapping.shape[0]+1)], dtype = int)[0,:]
+			# add to RT
+			self.RT = np.column_stack((self.RT, new_col))
+			self.RT = np.vstack((self.RT, new_row))
+		
+		# see if connections lists in lsa are in our mapping
+		for key, elem in otherMap.items():
+			match = False
+			
+			for my_key, my_elem in self.myMapping.items():
+				# if the ip/port is in both there is a match
+				if key == my_key:
+					match = True
+					# update the connection w 1 for now
+					self.RT[otherInd, my_elem] = 1
+					self.RT[my_elem, otherInd] = 1
+			# if no match add to myMapping
+			if match == False:
+				ind = len(self.myMapping)
+				self.myMapping[key] = ind
+				new_col = np.zeros([(ind),1], dtype = int) #[:,[0]]
+				new_row = np.zeros([1,(ind+1)], dtype = int)[0,:]
+				# add to RT
+				self.RT = np.column_stack((self.RT, new_col))
+				self.RT = np.vstack((self.RT, new_row))
+				# change ind of neighbor to connection
+				self.RT[otherInd, ind] = 1
+				self.RT[ind, otherInd] = 1
+
 	
 ls = LinkState('127.0.0.1', str(33333))
 ls.addNeighbor('127.0.0.1', str(22222))
@@ -87,8 +131,15 @@ ls.addNeighbor('127.0.0.1', str(55555))
 #ls.updateNeighborDelay(num, 3)
 #ls.printLinkState()
 
+ls_2 = LinkState('127.0.0.1', str(22222))
+ls_2.addNeighbor('127.0.0.1', str(33333))
+ls_2.addNeighbor('127.0.0.1', str(11111))
+
 print('Starting RT STuff')
 route = RoutingTable()
 route.createInitRT(ls)
-route.updateRT(2, 10)
-route.routingTableLookup('127.0.0.1', str(22222))
+#route.updateRT(2, 10)
+#route.routingTableLookup('127.0.0.1', str(22222))
+route.addOtherRouterLSA(ls_2)
+print(route.RT)
+print(route.myMapping)
