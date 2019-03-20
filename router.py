@@ -5,6 +5,7 @@ import time
 from Packet import packet
 from threading import Timer,Thread,Event
 from dijkstras import dijkstras
+from linkstate import *
 
 #todo:
 #   1. implement RT as a dict, index by destination IP, data is the IP of the next hop to
@@ -45,6 +46,7 @@ class router:
 				self.neighbors_statuses[str(neighbor[1])] = False
 		self.establish_neighbor_connections()
 		self.listen(str(self.ip), self.port)
+		self.localLinkState = LinkState(self.ip, self.port)
 
     #subclass to create the timing thread responsible for alive messages to neighbors 
 	class periodic_neighbor_timer():
@@ -131,6 +133,8 @@ class router:
 			if c.contents == 'Be_Neighbors_Confirm':
 				print('Connection established')
 				self.neighbors_statuses[str(other_router_port)] = True
+				# TODO add neighbor to LSDB
+				#self.localLinkState.addNeighbor('127.0.0.1', other_router_port)
 			else:
 				print('Connection refused.')
 		except:
@@ -155,6 +159,11 @@ class router:
 						data = s.recv(1024)
 					c = pickle.loads(data) 
 					delay_time = int(c) - int(cur_time)
+					# TODO update weight in RT
+					print('trying to update link state')
+					#num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
+					#disp('num')
+					#self.localLinkState.updateNeighborDelay(num, delay_time)
                     #print('Delay to neighbor ' + str(neighbor[1]) + ' : ' + str(delay_time))
 				except:
 					print('Unable to connect to neighbor: ' + str(neighbor))
