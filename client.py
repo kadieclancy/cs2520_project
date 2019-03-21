@@ -44,7 +44,10 @@ if len(sys.argv) >= 1:
 		print()
 		inp = input('')
 		if(int(inp) == 1):
-			control()
+			print('1: CONTROL INFO')
+			print('Alive interval:')
+			p = packet(my_router_port, my_router_port, 6, ' ')
+			send_file(p)
 		elif(int(inp) == 2):
 			#dest = input('Enter dest port (33333): ')
 			print('2: SEND FILE')

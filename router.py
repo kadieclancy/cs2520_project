@@ -330,6 +330,12 @@ class router:
 							route_tbl = pickle.dumps(self.RT.RT)
 							reply_pack = packet(decoded_packet.source_ip, self.port, 5, route_tbl)
 							conn.sendall(pickle.dumps(reply_pack))
+						#op code of 5 send RT to client
+						elif(decoded_packet.op == 6):
+							print('Client Request For - Control Info')
+							control = pickle.dumps(self.alive_interval)
+							reply_pack = packet(decoded_packet.source_ip, self.port, 6, control)
+							conn.sendall(pickle.dumps(reply_pack))
                         #op -1 = test packet        
 						elif(decoded_packet.op == -1):
 							print('Test packet from ' + str(s.getsockname[1]))
