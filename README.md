@@ -18,7 +18,7 @@ To run this simulation, run the commands (each in a seperate terminal):
 2. python3 router.py router_ID router_IP router_port [do this for each router]
 ```
 ```
-4. python3 client.py router_port [router_port that corresponds with the router you want the client to connect to]
+3. python3 client.py router_port [router_port that corresponds with the router you want the client to connect to]
 ```
 
 **Test cases:**
@@ -46,22 +46,3 @@ Simulation with 1 client and 2 routers, where the client sends a packet to the f
 7. 'Enter first hop port (33333):' 33333 
 ```
 The client sends the packet to port 22222, which forwards it to 33333.
-
-##TODOS
-0. control interface for application/client layer 
-```
-```
-1. Figure out client/router interface, so the client does not have to hard code first hop in (include clients in network topologoy?)
-```
-```
-4. LSA flooding, and using other LSA messages to update own LSDB 
-```
-```
-5. Max packet size for links
-```
-```
-6. Breakdown of files into packets of max size, reassembly, and possible fragmentation
-```
-```
-
-    
