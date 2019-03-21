@@ -20,8 +20,11 @@ def send_file(packet):
 	    encoded_packet = pickle.dumps(packet)
 	    s.sendall(encoded_packet)
 	    data = pickle.loads(s.recv(4096))
-	    if data.contents == 'ack':
+	    if data.op == 0:
 	    	print('Ack received. File transmitted succesfully')
+	    else:
+	    	rt = pickle.loads(data.contents)
+	    	print(rt)
 
 if len(sys.argv) >= 1:
 	my_router_port = int(sys.argv[1])
@@ -29,7 +32,7 @@ if len(sys.argv) >= 1:
 	#ignore this function for now. something like this will need to be implemented on the routers
 	#	for periodic alive messages/LSA flooding
 	while True:
-		print('Welcome to the Client Interface')
+		print('- - - - - Welcome to the Client Interface - - - - - ')
 		print('Please refer to the numbered commands below')
 		print()
 		print('Enter 1 for control information')
@@ -38,25 +41,32 @@ if len(sys.argv) >= 1:
 		print('Enter 4 to display shortest paths')
 		print('Enter 5 to exit the client')
 		print('Enter 6 for help')
+		print()
 		inp = input('')
 		if(int(inp) == 1):
 			control()
 		elif(int(inp) == 2):
 			#dest = input('Enter dest port (33333): ')
+			print('2: SEND FILE')
 			print('Enter the message you wish to send:')
 			msg = input('')
-			print('Enter the port number of the reciever: (33333)')
+			print('Enter the port number of the reciever: (ex: 33333)')
 			port_num = input('')
 			p = packet(int(port_num), my_router_port, 0, msg)
 			send_file(p)
-		#elif(int(inp) == 3):
-			# TODO
-		#elif (int(inp) == 4):
-			# TODO
+		elif(int(inp) == 3):
+			print('3: VIEW ROUTING TABLE')
+			p = packet(my_router_port, my_router_port, 5, ' ')
+			send_file(p)
+		elif (int(inp) == 4):
+			print('3: VIEW SHORTEST PATHS')
+			p = packet(my_router_port, my_router_port, 4, ' ')
+			send_file(p)
 		elif(int(inp) == 5):
+			print('5: EXIT')
 			break
 		elif (int(inp) == 6):
-			print('Welcome to the Client Interface')
+			print('6: HELP')
 			print('Please refer to the numbered commands below')
 			print()
 			print('Enter 1 for control information')

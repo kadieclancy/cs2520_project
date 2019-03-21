@@ -258,7 +258,7 @@ class router:
                         	# TODO add in buffer to hold packets
                             #if the destination IP is this router
 							if(int(decoded_packet.dest_ip) == int(PORT)):
-								print('Packet arrived at destination with contents:')
+								print('*Packet arrived at destination with contents:')
 								print(decoded_packet.contents)
 								print('Sending ack')
 								ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
@@ -317,7 +317,20 @@ class router:
 										p = packet(neighbor[0], self.port, 3, lsa)
 										encoded_packet = pickle.dumps(p)
 										s.sendall(encoded_packet)
-                        #op -1 = test packet                
+                               
+                        #op code of 4 send shortest path to client
+						elif(decoded_packet.op == 4):
+							print('Client Request For - Shortest Paths')
+							shortest_paths = pickle.dumps(self.RT.RT_Dict)
+							reply_pack = packet(decoded_packet.source_ip, self.port, 4, shortest_paths)
+							conn.sendall(pickle.dumps(reply_pack))
+						#op code of 5 send RT to client
+						elif(decoded_packet.op == 5):
+							print('Client Request For - Routing Table')
+							route_tbl = pickle.dumps(self.RT.RT)
+							reply_pack = packet(decoded_packet.source_ip, self.port, 5, route_tbl)
+							conn.sendall(pickle.dumps(reply_pack))
+                        #op -1 = test packet        
 						elif(decoded_packet.op == -1):
 							print('Test packet from ' + str(s.getsockname[1]))
 
