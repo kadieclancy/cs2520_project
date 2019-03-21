@@ -9,6 +9,7 @@
 3. Since the whole thing is run locally, the IPs for all the routers is just loopback 127.0.0.1. The port numbers are used to differentiate different routers and different sockets within routers. 
 
 **How to run the code:**
+
 To run this simulation, run the commands (each in a seperate terminal): 
 ```
 1. python3 conn_router.py  [first make config.txt your intended network topology]
