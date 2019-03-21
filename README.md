@@ -1,5 +1,4 @@
-# Wide Area Networks Project
-# User Manual
+# Wide Area Networks Project: User Manual
 
 **Some notes about the code:**
 
