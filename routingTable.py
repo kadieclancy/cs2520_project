@@ -119,6 +119,7 @@ class RoutingTable:
 				# change ind of neighbor to connection
 				self.RT[otherInd, ind] = 1
 				self.RT[ind, otherInd] = 1
+			self.computeRT(self.RT)
 
 	
 #ls = LinkState('127.0.0.1', str(33333))

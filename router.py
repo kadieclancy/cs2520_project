@@ -203,10 +203,8 @@ class router:
 				try:
 					with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 						s.connect((neighbor[0], neighbor[1]))
-						#TODO send actual LSA ??
-						lls = pickle.dumps(self.localLinkState)
-						# UNCOMMENT LSA
-						p = packet(neighbor[0], self.port, 3, 'lls')
+						lls =  pickle.dumps(self.localLinkState)
+						p = packet(neighbor[0], self.port, 3, lls)
 						encoded_packet = pickle.dumps(p)
 						s.sendall(encoded_packet)
 				except:
@@ -214,7 +212,7 @@ class router:
 		else:
 			if self.all_connections_established():
 				self.running = True
-		timing_thread_lsa = self.periodic_LSA_timer(self.alive_interval, self.periodic_LSA_neighbors)
+		timing_thread_lsa = self.periodic_LSA_timer(12, self.periodic_LSA_neighbors)
 		timing_thread_lsa.start()
 		return
 
@@ -307,11 +305,10 @@ class router:
 						#op code of 3 means link state advertisement
 						elif(decoded_packet.op == 3):
 							# read contents
-							lsa = decoded_packet.contents
+							lsa = pickle.loads(decoded_packet.contents) 
 							port = decoded_packet.source_ip
-							print("GOT LSA")
-							# TODO: add to LSDB
-							# TODO: recompute RT
+							# add to LSDB & recompute routing table
+							self.RT.addOtherRouterLSA(lsa)
 							# send to all neighbors except the one that sent it
 							for neighbor in self.neighbor_ports:
 								if str(neighbor[1]) != str(port):

@@ -1,5 +1,5 @@
 import random
-
+from linkstate import *
 error_rate = 10
 
 class packet:
@@ -18,6 +18,7 @@ class packet:
 
 
 	def compute_chksum(self, msg):
+	  msg = str(msg)
 	  s = 0       # Binary Sum
 	  # loop taking 2 characters at a time
 	  for i in range(0, len(msg)-1, 2):
@@ -53,5 +54,10 @@ class packet:
 # 	if not p1.check_chksum():
 # 		print(p1.contents)
 # 		break
+
+#ls = LinkState('127.0.0.1', str(33333))
+#lls =  pickle.dumps(ls)
+# UNCOMMENT LSA
+#p = packet('127.0.0.1', 33333, 3, lls)
 # 	i+=1
 
