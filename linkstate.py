@@ -50,7 +50,7 @@ class LinkState:
 		print(self.mapping)
 		print(self.LSDB)
 
-ls = LinkState('127.0.0.1', str(33333))
+#ls = LinkState('127.0.0.1', str(33333))
 #ls.addNeighbor('127.0.0.1', str(22222))
 #ls.addNeighbor('127.0.0.1', str(44444))
 #ls.addNeighbor('127.0.0.1', str(55555))
@@ -58,7 +58,3 @@ ls = LinkState('127.0.0.1', str(33333))
 #num = ls.ip2MapNum('127.0.0.1', 55555)
 #print(num)
 #ls.updateNeighborDelay(num, 3)
-ls.printLinkState()
-lls = pickle.dumps(ls) 
-p = ['neighbor', 'port', 3, lls]
-encoded_packet = pickle.dumps(p)

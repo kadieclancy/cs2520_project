@@ -308,10 +308,18 @@ class router:
 						elif(decoded_packet.op == 3):
 							# read contents
 							lsa = decoded_packet.contents
+							port = decoded_packet.source_ip
 							print("GOT LSA")
 							# TODO: add to LSDB
-							# TODO: forward to neighbors - look at neighbor threading for how to send to everything
 							# TODO: recompute RT
+							# TODO: take out neighbor that sent !
+							for neighbor in self.neighbor_ports:
+								if str(neighbor[1]) != str(port):
+									with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+										s.connect((neighbor[0], neighbor[1]))
+										p = packet(neighbor[0], self.port, 3, lsa)
+										encoded_packet = pickle.dumps(p)
+										s.sendall(encoded_packet)
                         #op -1 = test packet                
 						elif(decoded_packet.op == -1):
 							print('Test packet from ' + str(s.getsockname[1]))
