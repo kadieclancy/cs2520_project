@@ -1,6 +1,7 @@
 # linkstate.py
 # contains the Link State info for a local link state
 import numpy as np
+import pickle
 
 class LinkState:
 	def __init__(self, IP, port):
@@ -13,7 +14,7 @@ class LinkState:
 		map_num = len(self.mapping)
 		self.mapping[neigh_IP + str(port)] = map_num
 		self.LSDB[map_num] = 1
-		print('neighbor added to link state')
+		#print('neighbor added to link state')
 	
 	def updateNeighborDelay(self, neigh_index, delay):
 		self.LSDB[neigh_index] = delay + 1 # for now bc no delay
@@ -49,7 +50,7 @@ class LinkState:
 		print(self.mapping)
 		print(self.LSDB)
 
-#ls = LinkState('127.0.0.1', str(33333))
+ls = LinkState('127.0.0.1', str(33333))
 #ls.addNeighbor('127.0.0.1', str(22222))
 #ls.addNeighbor('127.0.0.1', str(44444))
 #ls.addNeighbor('127.0.0.1', str(55555))
@@ -57,5 +58,7 @@ class LinkState:
 #num = ls.ip2MapNum('127.0.0.1', 55555)
 #print(num)
 #ls.updateNeighborDelay(num, 3)
-#ls.printLinkState()
-
+ls.printLinkState()
+lls = pickle.dumps(ls) 
+p = ['neighbor', 'port', 3, lls]
+encoded_packet = pickle.dumps(p)

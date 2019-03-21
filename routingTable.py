@@ -29,7 +29,7 @@ class RoutingTable:
 			ind = row[0]
 			# create row and col to add to the RT adj mat
 			if np.array_equal(self.RT, [0]) and int(ind) == 0:
-				print(' ')
+				hold = ''
 			else:
 				s = self.RT.shape
 				r = int(s[0])
@@ -41,14 +41,14 @@ class RoutingTable:
 				# change ind of neighbor to 1 init bc connected
 				self.RT[0, r] = 1
 				self.RT[r, 0] = 1
-		print('ROUTING TABLE:')
-		print(self.RT)
+		#print('ROUTING TABLE:')
+		#print(self.RT)
 		self.computeRT(self.RT)
 
 	def computeRT(self, adjMat):
 		self.RT_Dict = dijkstras(adjMat, 0)
-		print('ROUTING TABLE DICT:') 
-		print(self.RT_Dict)
+		#print('ROUTING TABLE DICT:') 
+		#print(self.RT_Dict)
 
 	def addLSA(self, linkstate):
 		map = linkstate.mapping
@@ -57,8 +57,8 @@ class RoutingTable:
 	def updateRT(self, mappingNum, delay):
 		self.RT[0, int(mappingNum)] = int(delay) + 1
 		self.RT[int(mappingNum), 0] = int(delay) + 1
-		print('NEW ROUTING TABLE:')
-		print(self.RT)
+		#print('NEW ROUTING TABLE:')
+		#print(self.RT)
 		self.computeRT(self.RT)
 	
 	def routingTableLookup(self, IP, port):
@@ -121,25 +121,22 @@ class RoutingTable:
 				self.RT[ind, otherInd] = 1
 
 	
-ls = LinkState('127.0.0.1', str(33333))
-ls.addNeighbor('127.0.0.1', str(22222))
-ls.addNeighbor('127.0.0.1', str(44444))
-ls.addNeighbor('127.0.0.1', str(55555))
-#ls.printLinkState()
-#num = ls.ip2MapNum('127.0.0.1', 55555)
-#print(num)
-#ls.updateNeighborDelay(num, 3)
-#ls.printLinkState()
+#ls = LinkState('127.0.0.1', str(33333))
+#ls.addNeighbor('127.0.0.1', str(22222))
+#ls.addNeighbor('127.0.0.1', str(44444))
+#ls.addNeighbor('127.0.0.1', str(55555))
 
-ls_2 = LinkState('127.0.0.1', str(22222))
-ls_2.addNeighbor('127.0.0.1', str(33333))
-ls_2.addNeighbor('127.0.0.1', str(11111))
 
-print('Starting RT STuff')
-route = RoutingTable()
-route.createInitRT(ls)
+#ls_2 = LinkState('127.0.0.1', str(22222))
+#ls_2.addNeighbor('127.0.0.1', str(33333))
+#ls_2.addNeighbor('127.0.0.1', str(11111))
+#ls_2.addNeighbor('127.0.0.1', str(34567))
+
+#print('Starting RT STuff')
+#route = RoutingTable()
+#route.createInitRT(ls)
 #route.updateRT(2, 10)
 #route.routingTableLookup('127.0.0.1', str(22222))
-route.addOtherRouterLSA(ls_2)
-print(route.RT)
-print(route.myMapping)
+#route.addOtherRouterLSA(ls_2)
+#print(route.RT)
+#print(route.myMapping)

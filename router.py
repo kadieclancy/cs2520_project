@@ -50,9 +50,19 @@ class router:
 		self.listen(str(self.ip), self.port)
 
 
-
     #subclass to create the timing thread responsible for alive messages to neighbors 
 	class periodic_neighbor_timer():
+		def __init__(self, time, timer_event):
+			self.time = time
+			self.timer_event = timer_event
+			self.thread = Timer(self.time, self.timer_event)
+		def start(self):
+			self.thread.start()
+		def cancel(self):
+			self.thread.cancel()
+
+    #subclass to create the LSA thread responsible for LSA messages to neighbors 
+	class periodic_LSA_timer():
 		def __init__(self, time, timer_event):
 			self.time = time
 			self.timer_event = timer_event
@@ -118,6 +128,8 @@ class router:
 			init_timing_thread.start()
 		timing_thread = self.periodic_neighbor_timer(self.alive_interval, self.periodic_ping_neighbors)
 		timing_thread.start()
+		timing_thread_lsa = self.periodic_LSA_timer(12, self.periodic_LSA_neighbors)
+		timing_thread_lsa.start()
 
     #event function for repeadedly pinging neighbors at startup. This needs to be its own
     #   function because it is the callback for a timer object. there will be different threads
@@ -152,7 +164,7 @@ class router:
     #   seconds, it attemps to establish a connection with all of its neighbors. 
 	def periodic_ping_neighbors(self):
 		if self.running:
-			print('Pinging neighbors:')
+			print('Pinging neighbors...')
 			for neighbor in self.neighbor_ports:
 				try:
 					cur_time = 0
@@ -160,13 +172,13 @@ class router:
 						s.connect((neighbor[0], neighbor[1]))
 						cur_time = time.time()
 						p = packet(neighbor[0], self.port, 1, str(cur_time))
+						# can send LSA here
 						encoded_packet = pickle.dumps(p)
 						s.sendall(encoded_packet)
 						data = s.recv(1024)
 					c = pickle.loads(data) 
 					delay_time = int(c) - int(cur_time)
 					# Update weight in Link State
-					print('Updating weight in local link state')
 					num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
 					self.localLinkState.updateNeighborDelay(num, delay_time)
 					self.RT.updateRT(num, delay_time)
@@ -179,6 +191,31 @@ class router:
 				print('Initial setup complete.')
 		timing_thread = self.periodic_neighbor_timer(self.alive_interval, self.periodic_ping_neighbors)
 		timing_thread.start()
+		return
+		
+
+	#callback function to a timer object (periodic_neighbor_timer). each alive_interval 
+    #   seconds, it attemps to establish a connection with all of its neighbors. 
+	def periodic_LSA_neighbors(self):
+		if self.running:
+			print('Sending LSA to neighbors...')
+			for neighbor in self.neighbor_ports:
+				try:
+					with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+						s.connect((neighbor[0], neighbor[1]))
+						#TODO send actual LSA ??
+						lls = pickle.dumps(self.localLinkState)
+						# UNCOMMENT LSA
+						p = packet(neighbor[0], self.port, 3, 'lls')
+						encoded_packet = pickle.dumps(p)
+						s.sendall(encoded_packet)
+				except:
+					print('Unable to connect to neighbor: ' + str(neighbor))
+		else:
+			if self.all_connections_established():
+				self.running = True
+		timing_thread_lsa = self.periodic_LSA_timer(self.alive_interval, self.periodic_LSA_neighbors)
+		timing_thread_lsa.start()
 		return
 
     #simple function to check through connections_statuses to see if all neighbors are connected
@@ -271,8 +308,9 @@ class router:
 						elif(decoded_packet.op == 3):
 							# read contents
 							lsa = decoded_packet.contents
+							print("GOT LSA")
 							# TODO: add to LSDB
-							# TODO: forward to neighbors
+							# TODO: forward to neighbors - look at neighbor threading for how to send to everything
 							# TODO: recompute RT
                         #op -1 = test packet                
 						elif(decoded_packet.op == -1):

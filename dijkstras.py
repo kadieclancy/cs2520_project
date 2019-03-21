@@ -7,7 +7,7 @@ import numpy as np
 def dijkstras(mat, src):
     # number of vertices in the graph
     verts = len(mat)
-    print (verts)
+    #print (verts)
 
     # init distances to max int other than the source
     dist = [math.inf] * verts
