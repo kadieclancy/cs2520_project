@@ -13,7 +13,7 @@ class packet:
 		self.checksum = self.compute_chksum(self.contents)
 		#force a packet error if the random number generated is 0 
 		error = random.randint(0, error_rate)
-		if error == 0:
+		if error == -1:
 			self.packet_error()
 
 

@@ -25,7 +25,8 @@ class router:
         self.id = int(id)
         self.ip = ip 
         self.port = port
-        self.alive_interval = 5
+        self.alive_interval = 10
+        self.LSA_interval = 5
         # Link State DB is a matrix, init populated with known neighbors
         # once neighbors send their connections, matrix is updated
         self.LSDB = []
@@ -59,6 +60,8 @@ class router:
             self.thread.start()
         def cancel(self):
             self.thread.cancel()
+        def join(self):
+            self.thread.join()
 
     #subclass to create the LSA thread responsible for LSA messages to neighbors 
     class periodic_LSA_timer():
@@ -70,6 +73,8 @@ class router:
             self.thread.start()
         def cancel(self):
             self.thread.cancel()
+        def join(self):
+            self.thread.join()
 
     #subclass to create the timing thread responsible for initial neighbor acquisition 
     class init_neighbor_timer():
@@ -81,6 +86,8 @@ class router:
             self.thread.start()
         def cancel(self):
             self.thread.cancel()
+        def join(self):
+            self.thread.join()
 
     #if the router specified by the argument is a neighbor to this router, return the port
     #   number of the neighbor router. otherwise, return -1 
@@ -88,7 +95,7 @@ class router:
         try:
             if str(other_router_port) == str(self.port):
                 return -1
-            i = self.ports.index(int(other_router_port))
+            i = self.ports.index(str(other_router_port))
             return other_router_port
         except ValueError:
             return -1
@@ -144,12 +151,14 @@ class router:
     #   router topology are alive. It should hang up here before beginning its usual functions,
     #   until its confirmed that all of its neighbors are live. At which point self.running = True
     def establish_neighbor_connections(self):
+        print(self.neighbor_ports)
         for neighbor in self.neighbor_ports:
             init_timing_thread = self.init_neighbor_timer(5, self.establish_neighbor_thread, neighbor[1])
             init_timing_thread.start()
-        timing_thread = self.periodic_neighbor_timer(self.alive_interval, self.periodic_ping_neighbors)
+            #init_timing_thread.join()
+        timing_thread = self.periodic_neighbor_timer(5, self.periodic_ping_neighbors)
         timing_thread.start()
-        timing_thread_lsa = self.periodic_LSA_timer(12, self.periodic_LSA_neighbors)
+        timing_thread_lsa = self.periodic_LSA_timer(6, self.periodic_LSA_neighbors)
         timing_thread_lsa.start()
 
     #event function for repeadedly pinging neighbors at startup. This needs to be its own
@@ -166,20 +175,21 @@ class router:
                 s.sendall(encoded_packet)
                 data = s.recv(4096)
             c = pickle.loads(data)
-            if c.contents == 'Be_Neighbors_Confirm':
+            if str(c.contents) == 'Be_Neighbors_Confirm':
                 print('Connection established')
                 self.neighbors_statuses[str(other_router_port)] = True
                 # Add neighbor to LSDB (init delay 1 for hop)
                 self.localLinkState.addNeighbor('127.0.0.1', other_router_port)
                 #self.localLinkState.printLinkState()
                 # Init Routing Table
-                self.RT.createInitRT(self.localLinkState)
+                #self.RT.createInitRT(self.localLinkState)
             else:
                 print('Connection refused.')
         except:
             print('Unable to connect to neighbor: ' + str(other_router_port))  
             timing_thread = self.init_neighbor_timer(5, self.establish_neighbor_thread, other_router_port)
-            timing_thread.start()      
+            timing_thread.start()
+        
 
     #callback function to a timer object (periodic_neighbor_timer). each alive_interval 
     #   seconds, it attemps to establish a connection with all of its neighbors. 
@@ -203,12 +213,13 @@ class router:
                     num = self.localLinkState.ip2MapNum(neighbor[0], neighbor[1])
                     self.localLinkState.updateNeighborDelay(num, delay_time)
                     self.RT.updateRT(num, delay_time)
-                    #print('Delay to neighbor ' + str(neighbor[1]) + ' : ' + str(delay_time))
-                except:
+                except Exception as e:
+                    print(e)
                     print('Unable to connect to neighbor (Alive): ' + str(neighbor))
         else:
             if self.all_connections_established():
                 self.running = True
+                self.RT.createInitRT(self.localLinkState)
                 print('Initial setup complete.')
         timing_thread = self.periodic_neighbor_timer(self.alive_interval, self.periodic_ping_neighbors)
         timing_thread.start()
@@ -223,17 +234,15 @@ class router:
             for neighbor in self.neighbor_ports:
                 try:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                        s.connect((neighbor[0], neighbor[1]))
-                        lls =  pickle.dumps(self.localLinkState)
-                        p = packet(neighbor[0], self.port, 3, lls)
+                        s.connect((neighbor[0], int(neighbor[1])))
+                        #lls =  pickle.dumps(self.localLinkState)
+                        p = packet(neighbor[0], self.port, 3, self.localLinkState)
                         encoded_packet = pickle.dumps(p)
                         s.sendall(encoded_packet)
-                except:
+                except Exception as e:
+                    print(e)
                     print('Unable to connect to neighbor (LSA): ' + str(neighbor))
-        else:
-            if self.all_connections_established():
-                self.running = True
-        timing_thread_lsa = self.periodic_LSA_timer(12, self.periodic_LSA_neighbors)
+        timing_thread_lsa = self.periodic_LSA_timer(self.LSA_interval, self.periodic_LSA_neighbors)
         timing_thread_lsa.start()
         return
 
@@ -276,7 +285,7 @@ class router:
                             break
                         decoded_packet = pickle.loads(data)  
                         #op 0 = no operations required, forward to dest ip
-                        if(decoded_packet.op == 0): 
+                        if(decoded_packet.op == 0 and self.running): 
                             # TODO add in buffer to hold packets
                             #if the destination IP is this router
                             if(int(decoded_packet.dest_ip) == int(PORT)):
@@ -289,7 +298,6 @@ class router:
                             #else, forward the packet to the next hop 
                             # RT lookup here 
                             # just use this IP for now
-                            print(self.RT.RT)
                             forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))
                             forward_port = self.is_neighbor(int(forward_port[1]))
                             #if the destination cannot be reached, the forward port will be -1
@@ -310,7 +318,7 @@ class router:
                                 print('Error forwarding packet.')
                                 break
                         #op code of 1 means its a periodic alive message
-                        elif(decoded_packet.op == 1):
+                        elif(decoded_packet.op == 1 and self.running):
                             #respond with the current time to get delay
                             conn.sendall(pickle.dumps(time.time()))
                             break
@@ -328,35 +336,38 @@ class router:
                             break
 
                         #op code of 3 means link state advertisement
-                        elif(decoded_packet.op == 3):
+                        elif(decoded_packet.op == 3 and self.running):
                             # read contents
-                            lsa = pickle.loads(decoded_packet.contents) 
+                            #lsa = pickle.dumps(decoded_packet.contents)
+                            lsa = decoded_packet.contents
+                            #print('RECEIVED LSA:')
+                            #print(lsa)
                             port = decoded_packet.source_ip
-                            # add to LSDB & recompute routing table
+                            # add to LSDB & recompute routing table     
                             self.RT.addOtherRouterLSA(lsa)
                             # send to all neighbors except the one that sent it
                             for neighbor in self.neighbor_ports:
                                 if str(neighbor[1]) != str(port):
-                                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                                        s.connect((neighbor[0], neighbor[1]))
+                                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
+                                        s2.connect((neighbor[0], int(neighbor[1])))
                                         p = packet(neighbor[0], self.port, 3, lsa)
                                         encoded_packet = pickle.dumps(p)
-                                        s.sendall(encoded_packet)
+                                        s2.sendall(encoded_packet)
                                
                         #op code of 4 send shortest path to client
-                        elif(decoded_packet.op == 4):
+                        elif(decoded_packet.op == 4 and self.running):
                             print('Client Request For - Shortest Paths')
                             shortest_paths = pickle.dumps(self.RT.RT_Dict)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 4, shortest_paths)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
-                        elif(decoded_packet.op == 5):
+                        elif(decoded_packet.op == 5 and self.running):
                             print('Client Request For - Routing Table')
                             route_tbl = pickle.dumps(self.RT.RT)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 5, route_tbl)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
-                        elif(decoded_packet.op == 6):
+                        elif(decoded_packet.op == 6 and self.running):
                             print('Client Request For - Control Info')
                             control = pickle.dumps(self.alive_interval)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 6, control)

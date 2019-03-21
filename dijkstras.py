@@ -43,7 +43,7 @@ def dijkstras(mat, src):
 def minDistance(dist, sptSet, verts):
     # init minimum distance for next node
     min = math.inf
-
+    min_index = -1
     # Search not nearest vertex not in the
     # shortest path tree
     for v in range(verts):

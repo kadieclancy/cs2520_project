@@ -41,14 +41,10 @@ class RoutingTable:
 				# change ind of neighbor to 1 init bc connected
 				self.RT[0, r] = 1
 				self.RT[r, 0] = 1
-		#print('ROUTING TABLE:')
-		#print(self.RT)
 		self.computeRT(self.RT)
 
 	def computeRT(self, adjMat):
 		self.RT_Dict = dijkstras(adjMat, 0)
-		#print('ROUTING TABLE DICT:') 
-		#print(self.RT_Dict)
 
 	def addLSA(self, linkstate):
 		map = linkstate.mapping
@@ -62,24 +58,28 @@ class RoutingTable:
 		self.computeRT(self.RT)
 	
 	def routingTableLookup(self, IP, port):
-		mapNum = self.myMapping[str(IP)+str(port)]
-		vect = self.RT_Dict[mapNum]
-		dist = vect[0]
-		path = vect[1]
-		
-		for key, elem in self.myMapping.items():
-			if path[0] == elem:
-				addr = key
-		
-		forward_IP = addr[:9]
-		forward_port = addr[9:]
-		
-		return forward_IP, forward_port
+		try:
+			mapNum = self.myMapping[str(IP)+str(port)]
+			vect = self.RT_Dict[mapNum]
+			dist = vect[0]
+			path = vect[1]
+			
+			for key, elem in self.myMapping.items():
+				if path[1] == elem:
+					addr = key
+			
+			forward_IP = addr[:9]
+			forward_port = addr[9:]
+			
+			return forward_IP, forward_port
+		except Exception as e:
+			print('Routing table lookup error.')
+			return 'error', 'error'
 		
 	def addOtherRouterLSA(self, lsa):
 		otherMap = lsa.mapping
 		otherLSDB = lsa.LSDB
-		
+		otherInd = -1
 		m = False
 		# first check if this lsa is in our mapping
 		for k, e in self.myMapping.items():
@@ -88,10 +88,13 @@ class RoutingTable:
 				otherInd = int(e)
 		# if no match add to myMapping
 		if m == False:
-			therInd = int(self.myMapping.shape[0])
-			self.myMapping[lsa.IP + str(lsa.port)] = self.myMapping.shape[0]
-			new_col = np.zeros([(self.myMapping.shape[0]),1], dtype = int) #[:,[0]]
-			new_row = np.zeros([1,(self.myMapping.shape[0]+1)], dtype = int)[0,:]
+			#therInd = int(self.myMapping.shape[0])
+			#self.myMapping[lsa.IP + str(lsa.port)] = self.myMapping.shape[0]
+			therInd = len(self.myMapping)
+			self.myMapping[lsa.IP + str(lsa.port)] = therInd
+
+			new_col = np.zeros([therInd,1], dtype = int) #[:,[0]]
+			new_row = np.zeros([1,therInd + 1], dtype = int)#[0,:]
 			# add to RT
 			self.RT = np.column_stack((self.RT, new_col))
 			self.RT = np.vstack((self.RT, new_row))
