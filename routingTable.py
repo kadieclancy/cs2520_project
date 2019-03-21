@@ -23,7 +23,7 @@ class RoutingTable:
 				mappingMatrix = np.vstack([mappingMatrix, newrow])
 		
 		lls = localLinkState.LSDB
-		print(mappingMatrix)
+		#print(mappingMatrix)
 		for row in mappingMatrix:
 			# the mapping in the local link state will be the order of the adj mat
 			ind = row[0]
