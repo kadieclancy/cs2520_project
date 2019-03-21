@@ -312,7 +312,7 @@ class router:
 							print("GOT LSA")
 							# TODO: add to LSDB
 							# TODO: recompute RT
-							# TODO: take out neighbor that sent !
+							# send to all neighbors except the one that sent it
 							for neighbor in self.neighbor_ports:
 								if str(neighbor[1]) != str(port):
 									with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
