@@ -21,11 +21,11 @@ To run this simulation, run the commands (each in a seperate terminal):
 3. python3 client.py router_port [router_port that corresponds with the router you want the client to connect to]
 ```
 
-**Test cases:**
+**Test case example:**
 
 Simulation with 1 client and 2 routers, where the client sends a packet to the first router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
 ```
-1. python3 conn_router.py  
+1. python3 conn_router 0.py  
 ```
 ```
 2. python3 router.py 0 127.0.0.1 222222
