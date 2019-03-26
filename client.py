@@ -28,6 +28,7 @@ def send_file(packet):
 
 if len(sys.argv) >= 1:
 	my_router_port = int(sys.argv[1])
+	message_holder = {}
 	
 	#ignore this function for now. something like this will need to be implemented on the routers
 	#	for periodic alive messages/LSA flooding
@@ -41,6 +42,7 @@ if len(sys.argv) >= 1:
 		print('Enter 4 to display shortest paths')
 		print('Enter 5 to exit the client')
 		print('Enter 6 for help')
+		print('Enter 7 to view messages')
 		print()
 		inp = input('')
 		if(int(inp) == 1):
@@ -78,6 +80,10 @@ if len(sys.argv) >= 1:
 			print('Enter 4 to display shortest paths')
 			print('Enter 5 to exit the client')
 			print('Enter 6 for help')
+		elif (int(inp) == 7):
+			print('6: VIEW MESSAGES')
+			p = packet(my_router_port, my_router_port, 7, ' ')
+			send_file(p)
 		else:
 			print('Invalid Command. Enter 6 for help.')
 else:

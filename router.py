@@ -38,6 +38,7 @@ class router:
         # Local link state object to keep track of neighbors and weights to neighbors
         self.localLinkState = LinkState(self.ip, self.port)
         #self.localLinkState.printLinkState()
+        self.msg_holder = {}
         self.running = False
         self.ports = []
         self.topology = self.get_topology()
@@ -294,6 +295,8 @@ class router:
                                 print('Sending ack')
                                 ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
                                 conn.sendall(pickle.dumps(ack_pack))
+                                # Record Msg
+                                self.msg_holder[decoded_packet.source_ip] = decoded_packet.contents
                                 break
                             #else, forward the packet to the next hop 
                             # RT lookup here 
@@ -371,6 +374,12 @@ class router:
                             print('Client Request For - Control Info')
                             control = pickle.dumps(self.alive_interval)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 6, control)
+                            conn.sendall(pickle.dumps(reply_pack))
+                        #op code of 7 to send saved msg info
+                        elif(decoded_packet.op == 7 and self.running):
+                            print('Client Request For - Incoming Messages')
+                            msg = pickle.dumps(self.msg_holder)
+                            reply_pack = packet(decoded_packet.source_ip, self.port, 7, msg)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op -1 = test packet        
                         elif(decoded_packet.op == -1):
