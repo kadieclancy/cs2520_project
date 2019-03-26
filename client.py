@@ -25,6 +25,7 @@ def send_file(packet):
 	    else:
 	    	rt = pickle.loads(data.contents)
 	    	print(rt)
+	    	print()
 
 if len(sys.argv) >= 1:
 	my_router_port = int(sys.argv[1])
@@ -38,11 +39,12 @@ if len(sys.argv) >= 1:
 		print()
 		print('Enter 1 for control information')
 		print('Enter 2 to send a file')
-		print('Enter 3 to view routing table information')
-		print('Enter 4 to display shortest paths')
-		print('Enter 5 to exit the client')
-		print('Enter 6 for help')
-		print('Enter 7 to view messages')
+		print('Enter 3 to view messages')
+		print('Enter 4 to view routing table information')
+		print('Enter 5 to display shortest paths')
+		print('Enter 6 to exit the client')
+		print('Enter 7 for help')
+
 		print()
 		inp = input('')
 		if(int(inp) == 1):
@@ -59,29 +61,30 @@ if len(sys.argv) >= 1:
 			port_num = input('')
 			p = packet(int(port_num), my_router_port, 0, msg)
 			send_file(p)
-		elif(int(inp) == 3):
-			print('3: VIEW ROUTING TABLE')
+		elif(int(inp) == 4):
+			print('4: VIEW ROUTING TABLE')
 			p = packet(my_router_port, my_router_port, 5, ' ')
 			send_file(p)
-		elif (int(inp) == 4):
-			print('3: VIEW SHORTEST PATHS')
+		elif (int(inp) == 5):
+			print('5: VIEW SHORTEST PATHS')
 			p = packet(my_router_port, my_router_port, 4, ' ')
 			send_file(p)
-		elif(int(inp) == 5):
-			print('5: EXIT')
+		elif(int(inp) == 6):
+			print('6: EXIT')
 			break
-		elif (int(inp) == 6):
-			print('6: HELP')
+		elif (int(inp) == 7):
+			print('7: HELP')
 			print('Please refer to the numbered commands below')
 			print()
 			print('Enter 1 for control information')
-			print('Enter 2 to send a file')
-			print('Enter 3 to view routing table information')
-			print('Enter 4 to display shortest paths')
-			print('Enter 5 to exit the client')
-			print('Enter 6 for help')
-		elif (int(inp) == 7):
-			print('6: VIEW MESSAGES')
+			print('Enter 2 to send a message')
+			print('Enter 3 to view messages')
+			print('Enter 4 to view routing table information')
+			print('Enter 5 to display shortest paths')
+			print('Enter 6 to exit the client')
+			print('Enter 7 for help')
+		elif (int(inp) == 3):
+			print('3: VIEW MESSAGES')
 			p = packet(my_router_port, my_router_port, 7, ' ')
 			send_file(p)
 		else:
