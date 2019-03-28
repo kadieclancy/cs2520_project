@@ -64,10 +64,10 @@ Simulation with 2 clients and 3 routers. To run this simulation, run the command
 4. python3 router.py 2 127.0.0.1 44444
 ```
 ```
-4. python3 client.py 22222
+5. python3 client.py 22222
 ```
 ```
-4. python3 client.py 4444
+6. python3 client.py 4444
 ```
 
 
@@ -85,16 +85,16 @@ Simulation with 2 clients and 4 routers. To run this simulation, run the command
 3. python3 router.py 1 127.0.0.1 33333
 ```
 ```
-2. python3 router.py 2 127.0.0.1 44444
+4. python3 router.py 2 127.0.0.1 44444
 ```
 ```
-3. python3 router.py 3 127.0.0.1 34444
+5. python3 router.py 3 127.0.0.1 34444
 ```
 ```
-4. python3 client.py 22222
+6. python3 client.py 22222
 ```
 ```
-4. python3 client.py 34444
+7. python3 client.py 34444
 ```
 
 
@@ -112,20 +112,20 @@ Simulation with 3 clients and 5 routers. To run this simulation, run the command
 3. python3 router.py 1 127.0.0.1 33333
 ```
 ```
-2. python3 router.py 2 127.0.0.1 44444
+4. python3 router.py 2 127.0.0.1 44444
 ```
 ```
-3. python3 router.py 3 127.0.0.1 34444
+5. python3 router.py 3 127.0.0.1 34444
 ```
 ```
-3. python3 router.py 4 127.0.0.1 34445
+6. python3 router.py 4 127.0.0.1 34445
 ```
 ```
-4. python3 client.py 22222
+7. python3 client.py 22222
 ```
 ```
-4. python3 client.py 44444
+8. python3 client.py 44444
 ```
 ```
-4. python3 client.py 34445
+9. python3 client.py 34445
 ```
