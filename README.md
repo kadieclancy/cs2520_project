@@ -23,7 +23,7 @@ To run this simulation, run the commands (each in a seperate terminal):
 
 **Test case example:**
 
-Simulation with 1 client and 2 routers, where the client sends a packet to the first router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
+*config_file_simple.txt* Simulation with 2 clients and 2 routers, where the client sends a packet to the its router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
 ```
 1. python3 conn_router 0.py  
 ```
@@ -37,12 +37,9 @@ Simulation with 1 client and 2 routers, where the client sends a packet to the f
 4. python3 client.py 22222
 ```
 ```
-5. 'Welcome. Type 1 for control information, 2 to send a file.' 
+5. '- - - - - Welcome to the Client Interface ...' 
 ```
 ```
 6. 2 
 ```
-```
-7. 'Enter first hop port (33333):' 33333 
-```
-The client sends the packet to port 22222, which forwards it to 33333.
+The client sends the packet to its corresponding router, which forwards it to the destination 33333.
