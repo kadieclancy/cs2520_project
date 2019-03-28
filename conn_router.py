@@ -10,7 +10,7 @@ class conn_router:
 
     def __init__(self):
         # Load the config file that gives info about network
-        self.connec = np.loadtxt("config_file.txt", dtype='i', delimiter=',')
+        self.connec = np.loadtxt("config_file_simple.txt", dtype='i', delimiter=',')
         self.ports = []
         for i in range(len(self.connec[0])):
             self.ports.append(0)
@@ -50,7 +50,7 @@ class conn_router:
                         #op code of 1 means the router is trying to get the other port nums
                         elif p.op == 1:
                             if self.num_connections < len(self.connec[0]):
-                                p = packet(p.source_ip, '12345', 0, 'not_all_routers_ready')
+                                p = packet(p.source_ip, '12345', 0, ' ', 'not_all_routers_ready')
                                 data_pickle = pickle.dumps(p)
                                 conn.sendall(data_pickle)
                             else:

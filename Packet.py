@@ -5,10 +5,11 @@ error_rate = 10
 
 class packet:
 	#introduce a packet error every error_rate packets
-	def __init__(self, dest_ip, source_ip, op, contents):
+	def __init__(self, dest_ip, source_ip, op, packet_num, contents):
 		self.dest_ip = dest_ip
 		self.source_ip = source_ip
 		self.op = op
+		self.packet_num = packet_num
 		self.contents = contents
 		#compute checksum before potentially introducing an error
 		self.checksum = self.compute_chksum(self.contents)

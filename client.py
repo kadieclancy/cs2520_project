@@ -50,7 +50,7 @@ if len(sys.argv) >= 1:
 		if(int(inp) == 1):
 			print('1: CONTROL INFO')
 			print('Alive interval:')
-			p = packet(my_router_port, my_router_port, 6, ' ')
+			p = packet(my_router_port, my_router_port, 6, ' ', ' ')
 			send_file(p)
 		elif(int(inp) == 2):
 			#dest = input('Enter dest port (33333): ')
@@ -59,17 +59,17 @@ if len(sys.argv) >= 1:
 			msg = input('')
 			print('Enter the port number of the reciever: (ex: 33333)')
 			port_num = input('')
-			p = packet(int(port_num), my_router_port, 0, msg)
+			p = packet(int(port_num), my_router_port, 0, ' ', msg)
 			#Force an error into the packet
 			#p.packet_error()
 			send_file(p)
 		elif(int(inp) == 4):
 			print('4: VIEW ROUTING TABLE')
-			p = packet(my_router_port, my_router_port, 5, ' ')
+			p = packet(my_router_port, my_router_port, 5, ' ', ' ')
 			send_file(p)
 		elif (int(inp) == 5):
 			print('5: VIEW SHORTEST PATHS')
-			p = packet(my_router_port, my_router_port, 4, ' ')
+			p = packet(my_router_port, my_router_port, 4, ' ', ' ')
 			send_file(p)
 		elif(int(inp) == 6):
 			print('6: EXIT')
@@ -87,7 +87,7 @@ if len(sys.argv) >= 1:
 			print('Enter 7 for help')
 		elif (int(inp) == 3):
 			print('3: VIEW MESSAGES')
-			p = packet(my_router_port, my_router_port, 7, ' ')
+			p = packet(my_router_port, my_router_port, 7, ' ', ' ')
 			send_file(p)
 		else:
 			print('Invalid Command. Enter 6 for help.')

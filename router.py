@@ -29,6 +29,7 @@ class router:
         self.alive_interval = 5
         self.LSA_interval = 10
         self.timout = 2
+        self.packetbuffer = ''
         # Link State DB is a matrix, init populated with known neighbors
         # once neighbors send their connections, matrix is updated
         self.LSDB = []
@@ -120,7 +121,7 @@ class router:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             #connect to conn_router, whos port is hard coded in 
             s.connect(('127.0.0.1', 12345))
-            p = packet(12345, self.port, 0, str(self.id))
+            p = packet(12345, self.port, 0, ' ', str(self.id))
             encoded_packet = pickle.dumps(p)
             s.sendall(encoded_packet)
             data = s.recv(4096)
@@ -135,7 +136,7 @@ class router:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             #connect to conn_router, whos port is hard coded in 
             s.connect(('127.0.0.1', 12345))
-            p = packet(12345, self.port, 1, 'request_ports')
+            p = packet(12345, self.port, 1, ' ', 'request_ports')
             encoded_packet = pickle.dumps(p)
             s.sendall(encoded_packet)
             data = s.recv(4096)
@@ -173,7 +174,7 @@ class router:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect(('127.0.0.1', int(other_router_port)))
-                p = packet(other_router_port, self.port, 2, 'Neighbor_Request')
+                p = packet(other_router_port, self.port, 2, ' ', 'Neighbor_Request')
                 encoded_packet = pickle.dumps(p)
                 s.sendall(encoded_packet)
                 data = s.recv(4096)
@@ -209,7 +210,7 @@ class router:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         s.connect((neighbor[0], int(neighbor[1])))
                         cur_time = time.time()
-                        p = packet(neighbor[0], self.port, 1, str(cur_time))
+                        p = packet(neighbor[0], self.port, 1, ' ', str(cur_time))
                         # can send LSA here
                         encoded_packet = pickle.dumps(p)
                         s.sendall(encoded_packet)
@@ -242,7 +243,7 @@ class router:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                         s.connect((neighbor[0], int(neighbor[1])))
                         #lls =  pickle.dumps(self.localLinkState)
-                        p = packet(neighbor[0], self.port, 3, self.localLinkState)
+                        p = packet(neighbor[0], self.port, 3, ' ', self.localLinkState)
                         encoded_packet = pickle.dumps(p)
                         s.sendall(encoded_packet)
                 except Exception as e:
@@ -297,49 +298,110 @@ class router:
                             break
                         decoded_packet = pickle.loads(data)  
                         ack_timeout = Timer(self.timout, self.timeout_callback)
+                        msg_packets = []
                         #op 0 = no operations required, forward to dest ip
                         if(decoded_packet.op == 0 and self.running): 
-                            # TODO add in buffer to hold packets
+                            # If its a message coming from the client to be sent
+                            if decoded_packet.source_ip == int(PORT):
+                                # break the message into packets
+                                msg = decoded_packet.contents
+                                max = 10
+                                if len(decoded_packet.contents) > max:
+                                    msg_packets = [msg[i:i+max] for i in range(0, len(msg), max)]
+                                print(msg_packets)
                             #if the destination IP is this router
                             if(int(decoded_packet.dest_ip) == int(PORT)):
                                 #print('Test procedure: forcibly dropping packet')
                                 #break
-                                print('*Packet arrived at destination with contents:')
-                                print(str(decoded_packet.contents))
-                                print('Sending ack')
-                                ack_timeout.cancel()
-                                ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
-                                conn.sendall(pickle.dumps(ack_pack))
-                                # Record Msg
-                                self.msg_holder[decoded_packet.source_ip] = decoded_packet.contents
-                                break
+                                if decoded_packet.packet_num == ' ':
+                                    print('*Packet arrived at destination with contents: (Full Message)')
+                                    print(str(decoded_packet.contents))
+                                    print('Sending ack')
+                                    ack_timeout.cancel()
+                                    ack_pack = packet(decoded_packet.source_ip, self.port, 0, ' ', 'ack')
+                                    conn.sendall(pickle.dumps(ack_pack))
+                                    # Record Msg
+                                    self.msg_holder[decoded_packet.source_ip] = decoded_packet.contents
+                                    break
+                                else:
+                                    print('*Packet arrived at destination with contents:')
+                                    print(str(decoded_packet.contents))
+                                    self.packetbuffer += decoded_packet.contents
+                                    if decoded_packet.packet_num == 'L':
+                                        print('*Full Message:')
+                                        print(self.packetbuffer)
+                                        self.msg_holder[decoded_packet.source_ip] = self.packetbuffer
+                                        self.packetbuffer = ' '
+                                        break
+                                    else:
+                                        print('Sending ack')
+                                        ack_timeout.cancel()
+                                        ack_pack = packet(decoded_packet.source_ip, self.port, 0, ' ', 'ack')
+                                        conn.sendall(pickle.dumps(ack_pack))
+                                        break
                             #else, forward the packet to the next hop 
-                            # RT lookup here 
-                            # just use this IP for now
-                            forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))              
-                            forward_port = self.is_neighbor(int(forward_port[1]))
-                            print('Forwarding the packet to ' + str(forward_port))
-                            #if the destination cannot be reached, the forward port will be -1
-                            if(forward_port != -1):
-                                new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, decoded_packet.contents)
-                                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as send_s:
-                                    send_s.connect(('127.0.0.1', int(forward_port)))
-                                    send_s.sendall(pickle.dumps(new_p))
-                                    print('Waiting for Ack')
-                                    ack_timeout.start()
-                                    try:
-                                        data = pickle.loads(send_s.recv(4096))
-                                        if(data.contents == 'ack'):
-                                            print('Received acknowledgment. Ready to forward more packets')
-                                            print('Sending ack to: ' + str(decoded_packet.source_ip))
-                                            ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
-                                            conn.sendall(pickle.dumps(ack_pack))
-                                            break
-                                    except:
-                                        print('Connection broken')
+                            if msg_packets == []:
+                                forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))              
+                                forward_port = self.is_neighbor(int(forward_port[1]))
+                                print('Forwarding the packet to ' + str(forward_port))
+                                #if the destination cannot be reached, the forward port will be -1
+                                if(forward_port != -1):
+                                    new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, ' ', decoded_packet.contents)
+                                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as send_s:
+                                        send_s.connect(('127.0.0.1', int(forward_port)))
+                                        send_s.sendall(pickle.dumps(new_p))
+                                        print('Waiting for Ack')
+                                        ack_timeout.start()
+                                        try:
+                                            data = pickle.loads(send_s.recv(4096))
+                                            if(data.contents == 'ack'):
+                                                ack_timeout.cancel()
+                                                print('Received acknowledgment. Ready to forward more packets')
+                                                print('Sending ack to: ' + str(decoded_packet.source_ip))
+                                                ack_pack = packet(decoded_packet.source_ip, self.port, 0, ' ', 'ack')
+                                                conn.sendall(pickle.dumps(ack_pack))
+                                                break
+                                        except:
+                                            print('Connection broken')
+                                else:
+                                    print('Error forwarding packet')
+                                    break
+                            #else if there are packets to be sent
                             else:
-                                print('Error forwarding packet.')
-                                break
+                                forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))              
+                                forward_port = self.is_neighbor(int(forward_port[1]))
+                                counter = 0
+                                final = len(msg_packets) - 1
+                                for pkt in msg_packets:
+                                    print('Forwarding the packet to ' + str(forward_port))
+                                    print(pkt)
+                                    #if the destination cannot be reached, the forward port will be -1
+                                    if(forward_port != -1):
+                                        if counter != final:
+                                            new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, str(counter), pkt)
+                                        else:
+                                            new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, 'L', pkt)
+                                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as send_s:
+                                            send_s.connect(('127.0.0.1', int(forward_port)))
+                                            send_s.sendall(pickle.dumps(new_p))
+                                            if counter != final:
+                                                print('Waiting for Ack')
+                                                ack_timeout.start()
+                                                try:
+                                                    data = pickle.loads(send_s.recv(4096))
+                                                    if(data.contents == 'ack'):
+                                                        ack_timeout.cancel()
+                                                        print('Received acknowledgment. Ready to forward more packets')
+                                                        print('Sending ack to: ' + str(decoded_packet.source_ip))
+                                                        ack_pack = packet(decoded_packet.source_ip, self.port, 0, ' ', 'ack')
+                                                        conn.sendall(pickle.dumps(ack_pack))
+                                                        counter = counter + 1
+                                                        time.sleep(1)
+                                                except:
+                                                    print('Connection broken')
+                                    else:
+                                        print('Error forwarding packet')
+                                        break
                         #op code of 1 means its a periodic alive message
                         elif(decoded_packet.op == 1 and self.running):
                             #respond with the current time to get delay
@@ -354,7 +416,7 @@ class router:
                             #else:
                             #    resp_packet = packet(decoded_packet.source_ip, self.port, 2, 'Be_Neighbors_Refuse')
                             #    conn.sendall(pickle.dumps(resp_packet))
-                            resp_packet = packet(decoded_packet.source_ip, self.port, 2, 'Be_Neighbors_Confirm')
+                            resp_packet = packet(decoded_packet.source_ip, self.port, 2, ' ', 'Be_Neighbors_Confirm')
                             conn.sendall(pickle.dumps(resp_packet))
                             break
 
@@ -380,7 +442,7 @@ class router:
                                 if str(neighbor[1]) != str(port):
                                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
                                         s2.connect((neighbor[0], int(neighbor[1])))
-                                        p = packet(neighbor[0], self.port, 3, lsa)
+                                        p = packet(neighbor[0], self.port, 3, ' ', lsa)
                                         encoded_packet = pickle.dumps(p)
                                         s2.sendall(encoded_packet)
                                
@@ -388,25 +450,25 @@ class router:
                         elif(decoded_packet.op == 4 and self.running):
                             print('Client Request For - Shortest Paths')
                             shortest_paths = pickle.dumps(self.RT.RT_Dict)
-                            reply_pack = packet(decoded_packet.source_ip, self.port, 4, shortest_paths)
+                            reply_pack = packet(decoded_packet.source_ip, self.port, 4, ' ', shortest_paths)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
                         elif(decoded_packet.op == 5 and self.running):
                             print('Client Request For - Routing Table')
                             route_tbl = pickle.dumps(self.RT.RT)
-                            reply_pack = packet(decoded_packet.source_ip, self.port, 5, route_tbl)
+                            reply_pack = packet(decoded_packet.source_ip, self.port, 5, ' ', route_tbl)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
                         elif(decoded_packet.op == 6 and self.running):
                             print('Client Request For - Control Info')
                             control = pickle.dumps(self.alive_interval)
-                            reply_pack = packet(decoded_packet.source_ip, self.port, 6, control)
+                            reply_pack = packet(decoded_packet.source_ip, self.port, 6, ' ', control)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 7 to send saved msg info
                         elif(decoded_packet.op == 7 and self.running):
                             print('Client Request For - Incoming Messages')
                             msg = pickle.dumps(self.msg_holder)
-                            reply_pack = packet(decoded_packet.source_ip, self.port, 7, msg)
+                            reply_pack = packet(decoded_packet.source_ip, self.port, 7, ' ', msg)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op -1 = test packet        
                         elif(decoded_packet.op == -1):
