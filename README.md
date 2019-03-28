@@ -23,7 +23,9 @@ To run this simulation, run the commands (each in a seperate terminal):
 
 **Test case example:**
 
-*config_file_simple.txt* Simulation with 2 clients and 2 routers, where the client sends a packet to the its router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
+*config_file_simple.txt*
+
+Simulation with 2 clients and 2 routers, where the client sends a packet to the its router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
 ```
 1. python3 conn_router 0.py  
 ```
