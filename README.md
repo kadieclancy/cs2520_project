@@ -21,7 +21,7 @@ To run this simulation, run the commands (each in a seperate terminal):
 3. python3 client.py router_port [router_port that corresponds with the router you want the client to connect to]
 ```
 
-**Test case example:**
+**Test case examples:**
 
 *config_file_simple.txt*
 
@@ -46,6 +46,8 @@ Simulation with 2 clients and 2 routers, where the client sends a packet to the 
 ```
 The client sends the packet to its corresponding router, which forwards it to the destination 33333.
 
+
+
 *config_file_line.txt*
 
 Simulation with 2 clients and 3 routers. To run this simulation, run the commands (each in a seperate terminal): 
@@ -67,6 +69,7 @@ Simulation with 2 clients and 3 routers. To run this simulation, run the command
 ```
 4. python3 client.py 4444
 ```
+
 
 
 *config_file_circle.txt*
@@ -93,6 +96,8 @@ Simulation with 2 clients and 4 routers. To run this simulation, run the command
 ```
 4. python3 client.py 34444
 ```
+
+
 
 *config_file_combo.txt*
 
