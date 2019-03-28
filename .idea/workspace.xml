@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9bc8e25c-4ea5-4136-ae20-1f72ab87150d" name="Default Changelist" comment="updated dijkstras so it now returns a dictionary with shortest paths from source to every other node in network (indexed by dest)">
-      <change beforePath="$PROJECT_DIR$/router.py" beforeDir="false" afterPath="$PROJECT_DIR$/router.py" afterDir="false" />
-    </list>
+    <list default="true" id="9bc8e25c-4ea5-4136-ae20-1f72ab87150d" name="Default Changelist" comment="updated dijkstras so it now returns a dictionary with shortest paths from source to every other node in network (indexed by dest)" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,9 +51,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1928" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="x" value="-1780" />
+    <option name="y" value="503" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">

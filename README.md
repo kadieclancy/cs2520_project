@@ -21,11 +21,13 @@ To run this simulation, run the commands (each in a seperate terminal):
 3. python3 client.py router_port [router_port that corresponds with the router you want the client to connect to]
 ```
 
-**Test case example:**
+**Test case examples:**
 
-Simulation with 1 client and 2 routers, where the client sends a packet to the first router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
+*config_file_simple.txt*
+
+Simulation with 2 clients and 2 routers, where the client sends a packet to the its router, who sends it to the second, at which point an ack is propogated packwards. To run this simulation, run the commands (each in a seperate terminal): 
 ```
-1. python3 conn_router 0.py  
+1. python3 conn_router.py  
 ```
 ```
 2. python3 router.py 0 127.0.0.1 222222
@@ -37,12 +39,93 @@ Simulation with 1 client and 2 routers, where the client sends a packet to the f
 4. python3 client.py 22222
 ```
 ```
-5. 'Welcome. Type 1 for control information, 2 to send a file.' 
+5. '- - - - - Welcome to the Client Interface ...' 
 ```
 ```
 6. 2 
 ```
+The client sends the packet to its corresponding router, which forwards it to the destination 33333.
+
+
+
+*config_file_line.txt*
+
+Simulation with 2 clients and 3 routers. To run this simulation, run the commands (each in a seperate terminal): 
 ```
-7. 'Enter first hop port (33333):' 33333 
+1. python3 conn_router.py  
 ```
-The client sends the packet to port 22222, which forwards it to 33333.
+```
+2. python3 router.py 0 127.0.0.1 22222
+```
+```
+3. python3 router.py 1 127.0.0.1 33333
+```
+```
+4. python3 router.py 2 127.0.0.1 44444
+```
+```
+5. python3 client.py 22222
+```
+```
+6. python3 client.py 4444
+```
+
+
+
+*config_file_circle.txt*
+
+Simulation with 2 clients and 4 routers. To run this simulation, run the commands (each in a seperate terminal): 
+```
+1. python3 conn_router.py  
+```
+```
+2. python3 router.py 0 127.0.0.1 22222
+```
+```
+3. python3 router.py 1 127.0.0.1 33333
+```
+```
+4. python3 router.py 2 127.0.0.1 44444
+```
+```
+5. python3 router.py 3 127.0.0.1 34444
+```
+```
+6. python3 client.py 22222
+```
+```
+7. python3 client.py 34444
+```
+
+
+
+*config_file_combo.txt*
+
+Simulation with 3 clients and 5 routers. To run this simulation, run the commands (each in a seperate terminal): 
+```
+1. python3 conn_router.py  
+```
+```
+2. python3 router.py 0 127.0.0.1 22222
+```
+```
+3. python3 router.py 1 127.0.0.1 33333
+```
+```
+4. python3 router.py 2 127.0.0.1 44444
+```
+```
+5. python3 router.py 3 127.0.0.1 34444
+```
+```
+6. python3 router.py 4 127.0.0.1 34445
+```
+```
+7. python3 client.py 22222
+```
+```
+8. python3 client.py 44444
+```
+```
+9. python3 client.py 34445
+```
