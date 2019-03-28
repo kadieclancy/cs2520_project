@@ -60,6 +60,8 @@ if len(sys.argv) >= 1:
 			print('Enter the port number of the reciever: (ex: 33333)')
 			port_num = input('')
 			p = packet(int(port_num), my_router_port, 0, msg)
+			#Force an error into the packet
+			#p.packet_error()
 			send_file(p)
 		elif(int(inp) == 4):
 			print('4: VIEW ROUTING TABLE')

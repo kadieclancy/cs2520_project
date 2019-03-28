@@ -91,25 +91,31 @@ class RoutingTable:
 			#therInd = int(self.myMapping.shape[0])
 			#self.myMapping[lsa.IP + str(lsa.port)] = self.myMapping.shape[0]
 			therInd = len(self.myMapping)
+			otherInd = therInd
 			self.myMapping[lsa.IP + str(lsa.port)] = therInd
-
-			new_col = np.zeros([therInd,1], dtype = int) #[:,[0]]
-			new_row = np.zeros([1,therInd + 1], dtype = int)#[0,:]
+			#print('OLD RT:')
+			#print(self.RT)
+			new_col = np.zeros([(therInd),1], dtype = int) #[:,[0]]
+			new_row = np.zeros([1,(therInd+1)], dtype = int)[0,:]
 			# add to RT
 			self.RT = np.column_stack((self.RT, new_col))
 			self.RT = np.vstack((self.RT, new_row))
+			#self.RT[otherInd, therInd] = 1
+			#self.RT[therInd, otherInd] = 1
+			#print('NEW RT:')
+			#print(self.RT)
 		
 		# see if connections lists in lsa are in our mapping
 		for key, elem in otherMap.items():
 			match = False
-			
 			for my_key, my_elem in self.myMapping.items():
 				# if the ip/port is in both there is a match
 				if key == my_key:
 					match = True
 					# update the connection w 1 for now
-					self.RT[otherInd, my_elem] = 1
-					self.RT[my_elem, otherInd] = 1
+					#self.RT[otherInd, my_elem] = 1
+					#self.RT[my_elem, otherInd] = 1
+
 			# if no match add to myMapping
 			if match == False:
 				ind = len(self.myMapping)
@@ -122,6 +128,7 @@ class RoutingTable:
 				# change ind of neighbor to connection
 				self.RT[otherInd, ind] = 1
 				self.RT[ind, otherInd] = 1
+
 			self.computeRT(self.RT)
 
 	

@@ -25,8 +25,10 @@ class router:
         self.id = int(id)
         self.ip = ip 
         self.port = port
-        self.alive_interval = 10
-        self.LSA_interval = 5
+        #these params can be modified
+        self.alive_interval = 5
+        self.LSA_interval = 10
+        self.timout = 2
         # Link State DB is a matrix, init populated with known neighbors
         # once neighbors send their connections, matrix is updated
         self.LSDB = []
@@ -152,7 +154,7 @@ class router:
     #   router topology are alive. It should hang up here before beginning its usual functions,
     #   until its confirmed that all of its neighbors are live. At which point self.running = True
     def establish_neighbor_connections(self):
-        print(self.neighbor_ports)
+        #print(self.neighbor_ports)
         for neighbor in self.neighbor_ports:
             init_timing_thread = self.init_neighbor_timer(5, self.establish_neighbor_thread, neighbor[1])
             init_timing_thread.start()
@@ -196,7 +198,11 @@ class router:
     #   seconds, it attemps to establish a connection with all of its neighbors. 
     def periodic_ping_neighbors(self):
         if self.running:
-            print('Pinging neighbors...')
+            #print('Routing info:')
+            #print(self.RT.RT)
+            #print(self.RT.myMapping)
+            #print(self.RT.RT_Dict)
+            #print('Pinging neighbors...')
             for neighbor in self.neighbor_ports:
                 try:
                     cur_time = 0
@@ -221,7 +227,6 @@ class router:
             if self.all_connections_established():
                 self.running = True
                 self.RT.createInitRT(self.localLinkState)
-                print('Initial setup complete.')
         timing_thread = self.periodic_neighbor_timer(self.alive_interval, self.periodic_ping_neighbors)
         timing_thread.start()
         return
@@ -231,7 +236,7 @@ class router:
     #   seconds, it attemps to establish a connection with all of its neighbors. 
     def periodic_LSA_neighbors(self):
         if self.running:
-            print('Sending LSA to neighbors...')
+            #print('Sending LSA to neighbors...')
             for neighbor in self.neighbor_ports:
                 try:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -266,6 +271,12 @@ class router:
             else:
                 self.RT[key] = elem
         return RT
+
+    #callback function from a timer that should trigger a request for retransmission if 
+    #   an ack is not received after the specified time 
+    def timeout_callback(self):
+        #print('Ack not received! Requesting retransmission')
+        i = 10
     
     #most of the routers lifetime will be spent in this function, waiting for a connection
     def listen(self, HOST, PORT):
@@ -285,14 +296,18 @@ class router:
                         if not data:
                             break
                         decoded_packet = pickle.loads(data)  
+                        ack_timeout = Timer(self.timout, self.timeout_callback)
                         #op 0 = no operations required, forward to dest ip
                         if(decoded_packet.op == 0 and self.running): 
                             # TODO add in buffer to hold packets
                             #if the destination IP is this router
                             if(int(decoded_packet.dest_ip) == int(PORT)):
+                                #print('Test procedure: forcibly dropping packet')
+                                #break
                                 print('*Packet arrived at destination with contents:')
-                                print(decoded_packet.contents)
+                                print(str(decoded_packet.contents))
                                 print('Sending ack')
+                                ack_timeout.cancel()
                                 ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
                                 conn.sendall(pickle.dumps(ack_pack))
                                 # Record Msg
@@ -301,22 +316,27 @@ class router:
                             #else, forward the packet to the next hop 
                             # RT lookup here 
                             # just use this IP for now
-                            forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))
+                            forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))              
                             forward_port = self.is_neighbor(int(forward_port[1]))
+                            print('Forwarding the packet to ' + str(forward_port))
                             #if the destination cannot be reached, the forward port will be -1
                             if(forward_port != -1):
-                                print('Forwarding the packet to ' + str(forward_port))
                                 new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, decoded_packet.contents)
                                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as send_s:
                                     send_s.connect(('127.0.0.1', int(forward_port)))
                                     send_s.sendall(pickle.dumps(new_p))
-                                    data = pickle.loads(send_s.recv(4096))
-                                    if(data.contents == 'ack'):
-                                        print('Received acknowledgment. Ready to forward more packets')
-                                        print('Sending ack')
-                                        ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
-                                        conn.sendall(pickle.dumps(ack_pack))
-                                        break
+                                    print('Waiting for Ack')
+                                    ack_timeout.start()
+                                    try:
+                                        data = pickle.loads(send_s.recv(4096))
+                                        if(data.contents == 'ack'):
+                                            print('Received acknowledgment. Ready to forward more packets')
+                                            print('Sending ack to: ' + str(decoded_packet.source_ip))
+                                            ack_pack = packet(decoded_packet.source_ip, self.port, 0, 'ack')
+                                            conn.sendall(pickle.dumps(ack_pack))
+                                            break
+                                    except:
+                                        print('Connection broken')
                             else:
                                 print('Error forwarding packet.')
                                 break
@@ -346,8 +366,15 @@ class router:
                             #print('RECEIVED LSA:')
                             #print(lsa)
                             port = decoded_packet.source_ip
+
+                            #print('OLD RT: ')
+                            #print(self.RT.RT)
+
                             # add to LSDB & recompute routing table     
                             self.RT.addOtherRouterLSA(lsa)
+                            #print('NEW RT: ')
+                            #print(self.RT.RT)
+
                             # send to all neighbors except the one that sent it
                             for neighbor in self.neighbor_ports:
                                 if str(neighbor[1]) != str(port):

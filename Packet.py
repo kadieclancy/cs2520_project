@@ -1,5 +1,6 @@
 import random
 from linkstate import *
+
 error_rate = 10
 
 class packet:
