@@ -346,7 +346,7 @@ class router:
                                 print('Forwarding the packet to ' + str(forward_port))
                                 #if the destination cannot be reached, the forward port will be -1
                                 if(forward_port != -1):
-                                    new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, ' ', decoded_packet.contents)
+                                    new_p = packet(decoded_packet.dest_ip, HOST + str(PORT), 0, decoded_packet.packet_num, decoded_packet.contents)
                                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as send_s:
                                         send_s.connect(('127.0.0.1', int(forward_port)))
                                         send_s.sendall(pickle.dumps(new_p))
@@ -368,6 +368,7 @@ class router:
                                     break
                             #else if there are packets to be sent
                             else:
+                                print('OKAY WE ARE PACKETIZING')
                                 forward_port = self.RT.routingTableLookup('127.0.0.1', str(decoded_packet.dest_ip))              
                                 forward_port = self.is_neighbor(int(forward_port[1]))
                                 counter = 0
