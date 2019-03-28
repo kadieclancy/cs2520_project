@@ -100,8 +100,13 @@ class RoutingTable:
 			# add to RT
 			self.RT = np.column_stack((self.RT, new_col))
 			self.RT = np.vstack((self.RT, new_row))
-			#self.RT[otherInd, therInd] = 1
-			#self.RT[therInd, otherInd] = 1
+			for k in otherMap:
+				try:
+					if(otherLSDB[otherMap[k]] == 1):
+						self.RT[self.myMapping[k], therInd] = 1
+						self.RT[therInd, self.myMapping[k]] = 1
+				except:
+					pass
 			#print('NEW RT:')
 			#print(self.RT)
 		
