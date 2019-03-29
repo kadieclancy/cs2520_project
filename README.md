@@ -10,6 +10,8 @@
 
 4. For larger networks, you need to give the system some time (approximately 30 sec) after neighbor acquisiton for all routers to correctly discover all routers in the network via LSAs and construct their routing tables before sending messages. You can check to see if the whole network is accounted for by connecting a router to a client then selecting option 4 - view routing table.
 
+5. Error rates are coded in. The packet error is possibly incurred during the creation of the packet, and thus is found in the __init__ for the packet class. The packet dropping is done in the router whenever it receives a new packet. The packet drop rate is in the constructor for the router. 
+
 **How to run the code:**
 
 To run this simulation, run the commands (each in a seperate terminal): 

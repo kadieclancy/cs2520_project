@@ -10,7 +10,7 @@ class conn_router:
 
     def __init__(self):
         # Load the config file that gives info about network
-        self.connec = np.loadtxt("config_file2.txt", dtype='i', delimiter=',')
+        self.connec = np.loadtxt("config_file.txt", dtype='i', delimiter=',')
         self.ports = []
         for i in range(len(self.connec[0])):
             self.ports.append(0)
