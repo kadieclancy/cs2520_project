@@ -30,10 +30,10 @@ Simulation with 2 clients and 2 routers, where the client sends a packet to the 
 1. python3 conn_router.py  
 ```
 ```
-2. python3 router.py 0 127.0.0.1 222222
+2. python3 router.py 0 127.0.0.1 22222
 ```
 ```
-3. python3 router.py 1 127.0.0.1 333333 
+3. python3 router.py 1 127.0.0.1 33333
 ```
 ```
 4. python3 client.py 22222
@@ -67,7 +67,7 @@ Simulation with 2 clients and 3 routers. To run this simulation, run the command
 5. python3 client.py 22222
 ```
 ```
-6. python3 client.py 4444
+6. python3 client.py 44444
 ```
 
 
