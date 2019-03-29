@@ -122,14 +122,8 @@ Simulation with 3 clients and 5 routers. To run this simulation, run the command
 5. python3 router.py 3 127.0.0.1 34444
 ```
 ```
-6. python3 router.py 4 127.0.0.1 34445
+6. python3 client.py 22222
 ```
 ```
-7. python3 client.py 22222
-```
-```
-8. python3 client.py 44444
-```
-```
-9. python3 client.py 34445
+7. python3 client.py 34444
 ```
