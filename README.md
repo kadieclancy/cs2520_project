@@ -6,7 +6,9 @@
 
 2. Each router/client must be run in its own terminal window, including conn_router.py.
 
-3. Since the whole thing is run locally, the IPs for all the routers is just loopback 127.0.0.1. The port numbers are used to differentiate different routers and different sockets within routers. 
+3. Since the whole thing is run locally, the IPs for all the routers is just loopback 127.0.0.1. The port numbers are used to differentiate different routers and different sockets within routers.
+
+4. For larger networks, you need to give the system some time (approximately 30 sec) after neighbor acquisiton for all routers to correctly discover all routers in the network via LSAs and construct their routing tables before sending messages. You can check to see if the whole network is accounted for by connecting a router to a client then selecting option 4 - view routing table.
 
 **How to run the code:**
 
