@@ -12,20 +12,24 @@ def control():
 
 def send_file(packet):
 	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-	    s.connect(('127.0.0.1', my_router_port))
-	    #tuple, sock_info[0] = ip, sock_info[1] = host
-	    sock_info = s.getsockname()
-	    #s.sendall(str.encode(mes))
-	    #p = packet(HOST+str(PORT), sock_info[1], 0, 'file contents')
-	    encoded_packet = pickle.dumps(packet)
-	    s.sendall(encoded_packet)
-	    data = pickle.loads(s.recv(4096))
-	    if data.op == 0:
-	    	print('Ack received. File transmitted succesfully')
-	    else:
-	    	rt = pickle.loads(data.contents)
-	    	print(rt)
-	    	print()
+		s.connect(('127.0.0.1', my_router_port))
+		#tuple, sock_info[0] = ip, sock_info[1] = host
+		sock_info = s.getsockname()
+		#s.sendall(str.encode(mes))
+		#p = packet(HOST+str(PORT), sock_info[1], 0, 'file contents')
+		encoded_packet = pickle.dumps(packet)
+		s.sendall(encoded_packet)
+		try:
+			data = pickle.loads(s.recv(4096))
+			if data.op == 0:
+				print('Ack received. File transmitted succesfully')
+				return
+			else:
+				rt = pickle.loads(data.contents)
+				print(rt)
+				print()
+		except:
+			print('Error connecting to router. Please try again.')
 
 if len(sys.argv) >= 1:
 	my_router_port = int(sys.argv[1])
@@ -46,7 +50,7 @@ if len(sys.argv) >= 1:
 		print('Enter 7 for help')
 
 		print()
-		inp = input('')
+		inp = input('>')
 		if(int(inp) == 1):
 			print('1: CONTROL INFO')
 			print('Alive interval:')

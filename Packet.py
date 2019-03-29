@@ -1,11 +1,11 @@
 import random
 from linkstate import *
 
-error_rate = 10
+error_rate = 100
 
 class packet:
 	#introduce a packet error every error_rate packets
-	def __init__(self, dest_ip, source_ip, op, packet_num, contents):
+	def __init__(self, dest_ip, source_ip, op, packet_num, contents, error=True):
 		self.dest_ip = dest_ip
 		self.source_ip = source_ip
 		self.op = op
@@ -14,8 +14,8 @@ class packet:
 		#compute checksum before potentially introducing an error
 		self.checksum = self.compute_chksum(self.contents)
 		#force a packet error if the random number generated is 0 
-		error = random.randint(0, error_rate)
-		if error == -1:
+		error_val = random.randint(0, error_rate)
+		if error_val == 0 and error==True:
 			self.packet_error()
 
 
@@ -49,17 +49,4 @@ class packet:
 		tmp[error_index] = chr(ord(tmp[error_index]) + 1)
 		self.contents = str(tmp)
 
-# i = 1
-# while True:
-# 	print('making packet number: ' + str(i))
-# 	p1 = packet(33333, 22222, 0, 'a packet')
-# 	if not p1.check_chksum():
-# 		print(p1.contents)
-# 		break
-
-#ls = LinkState('127.0.0.1', str(33333))
-#lls =  pickle.dumps(ls)
-# UNCOMMENT LSA
-#p = packet('127.0.0.1', 33333, 3, lls)
-# 	i+=1
 
