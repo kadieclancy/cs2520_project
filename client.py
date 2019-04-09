@@ -3,7 +3,7 @@ import socket
 from Packet import packet
 import pickle 
 import sys
-
+from routingTable import *
 
 
 def control():
@@ -22,7 +22,12 @@ def send_file(packet):
 		try:
 			data = pickle.loads(s.recv(4096))
 			if data.op == 0:
-				print('Ack received. File transmitted succesfully')
+				print('Ack received. File transmitted successfully')
+				return
+			if data.op == 4:
+				rt_obj = pickle.loads(data.contents)
+				print(rt_obj.RT_Dict)
+				print(rt_obj.myMapping)
 				return
 			else:
 				rt = pickle.loads(data.contents)
