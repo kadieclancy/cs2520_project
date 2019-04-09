@@ -24,10 +24,10 @@ def send_file(packet):
 			if data.op == 0:
 				print('Ack received. File transmitted successfully')
 				return
-			if data.op == 4:
+			if data.op == 5:
 				rt_obj = pickle.loads(data.contents)
-				print(rt_obj.RT_Dict)
 				print(rt_obj.myMapping)
+				print(rt_obj.RT)
 				return
 			else:
 				rt = pickle.loads(data.contents)

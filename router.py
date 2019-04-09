@@ -491,13 +491,13 @@ class router:
                         #op code of 4 send shortest path to client
                         elif(decoded_packet.op == 4 and self.running):
                             print('Client Request For - Shortest Paths')
-                            shortest_paths = pickle.dumps(self.RT.RT_Dict)
+                            shortest_paths = pickle.dumps(self.RT.RT)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 4, ' ', shortest_paths, False)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
                         elif(decoded_packet.op == 5 and self.running):
                             print('Client Request For - Routing Table')
-                            route_tbl = pickle.dumps(self.RT.RT)
+                            route_tbl = pickle.dumps(self.RT)
                             reply_pack = packet(decoded_packet.source_ip, self.port, 5, ' ', route_tbl, False)
                             conn.sendall(pickle.dumps(reply_pack))
                         #op code of 5 send RT to client
